@@ -1,0 +1,36 @@
+<?xml version="1.0"  encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <CategoryClasses>
+    
+        <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+            <Id>
+                <TypeId>GuiBlockCategoryDefinition</TypeId>
+                <SubtypeId/>
+            </Id>
+            <DisplayName>DisplayName_Category_ShipTools</DisplayName>
+            <Name>ShipTools</Name>
+            <SearchBlocks>false</SearchBlocks>
+            <IsShipCategory>true</IsShipCategory>
+            <IsBlockCategory>false</IsBlockCategory>
+            <IsToolCategory>true</IsToolCategory>
+            <ItemIds>
+                <string>ConveyorSorter/LG_Simple_Laser_Multitool</string>
+                <string>ConveyorSorter/SG_Simple_Laser_Multitool</string>
+            </ItemIds>
+        </Category>
+        
+        <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+            <Id>
+                <TypeId>GuiBlockCategoryDefinition</TypeId>
+                <SubtypeId/>
+            </Id>
+            <DisplayName>DisplayName_Category_ShipTools</DisplayName>
+            <Name>Tools</Name>
+            <ItemIds>
+                <string>ConveyorSorter/LG_Simple_Laser_Multitool</string>
+                <string>ConveyorSorter/SG_Simple_Laser_Multitool</string>
+            </ItemIds>
+        </Category>
+
+    </CategoryClasses>
+</Definitions>
