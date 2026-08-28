@@ -22,5 +22,47 @@
 				<Y>1</Y>
 			</UVSize>
 		</TransparentMaterial>
+		<TransparentMaterial>
+			<Id>
+				<TypeId>TransparentMaterialDefinition</TypeId>
+				<SubtypeId>LaserMultitool_Beam_Weld</SubtypeId>
+			</Id>
+			<AlphaMistingEnable>true</AlphaMistingEnable>
+			<AlphaSaturation>1</AlphaSaturation>
+			<CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+			<IgnoreDepth>false</IgnoreDepth>
+			<SoftParticleDistanceScale>2</SoftParticleDistanceScale>
+			<Texture>Textures\Particles\ProjectileTrailLine.dds</Texture>
+			<UseAtlas>false</UseAtlas>
+			<UVOffset>
+				<X>0</X>
+				<Y>0</Y>
+			</UVOffset>
+			<UVSize>
+				<X>1</X>
+				<Y>1</Y>
+			</UVSize>
+		</TransparentMaterial>
+		<TransparentMaterial>
+			<Id>
+				<TypeId>TransparentMaterialDefinition</TypeId>
+				<SubtypeId>LaserMultitool_Beam_Grind</SubtypeId>
+			</Id>
+			<AlphaMistingEnable>true</AlphaMistingEnable>
+			<AlphaSaturation>1</AlphaSaturation>
+			<CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
+			<IgnoreDepth>false</IgnoreDepth>
+			<SoftParticleDistanceScale>2</SoftParticleDistanceScale>
+			<Texture>Textures\Particles\ProjectileTrailLine.dds</Texture>
+			<UseAtlas>false</UseAtlas>
+			<UVOffset>
+				<X>0</X>
+				<Y>0</Y>
+			</UVOffset>
+			<UVSize>
+				<X>1</X>
+				<Y>1</Y>
+			</UVSize>
+		</TransparentMaterial>
 	</TransparentMaterials>
 </Definitions>

@@ -14,8 +14,20 @@
             <IsBlockCategory>false</IsBlockCategory>
             <IsToolCategory>true</IsToolCategory>
             <ItemIds>
-                <string>ConveyorSorter/LG_Simple_Laser_Multitool</string>
-                <string>ConveyorSorter/SG_Simple_Laser_Multitool</string>
+                <string>ConveyorSorter/GVK_LargeSalvageBeamTurret</string>
+                <string>ConveyorSorter/GVK_LargeBlockDrill</string>
+                <string>ConveyorSorter/GVK_SmallBlockDrill</string>
+                <string>ConveyorSorter/GVK_LargePrototechDrill</string>
+                <string>ConveyorSorter/GVK_LargeShipWelder</string>
+                <string>ConveyorSorter/GVK_SmallShipWelder</string>
+                <string>ConveyorSorter/GVK_LargeShipGrinder</string>
+                <string>ConveyorSorter/GVK_SmallShipGrinder</string>
+                <string>ConveyorSorter/GVK_LargeBlockDrillReskin</string>
+                <string>ConveyorSorter/GVK_SmallBlockDrillReskin</string>
+                <string>ConveyorSorter/GVK_LargeShipWelderReskin</string>
+                <string>ConveyorSorter/GVK_SmallShipWelderReskin</string>
+                <string>ConveyorSorter/GVK_LargeShipGrinderReskin</string>
+                <string>ConveyorSorter/GVK_SmallShipGrinderReskin</string>
             </ItemIds>
         </Category>
         
@@ -27,8 +39,20 @@
             <DisplayName>DisplayName_Category_ShipTools</DisplayName>
             <Name>Tools</Name>
             <ItemIds>
-                <string>ConveyorSorter/LG_Simple_Laser_Multitool</string>
-                <string>ConveyorSorter/SG_Simple_Laser_Multitool</string>
+                <string>ConveyorSorter/GVK_LargeSalvageBeamTurret</string>
+                <string>ConveyorSorter/GVK_LargeBlockDrill</string>
+                <string>ConveyorSorter/GVK_SmallBlockDrill</string>
+                <string>ConveyorSorter/GVK_LargePrototechDrill</string>
+                <string>ConveyorSorter/GVK_LargeShipWelder</string>
+                <string>ConveyorSorter/GVK_SmallShipWelder</string>
+                <string>ConveyorSorter/GVK_LargeShipGrinder</string>
+                <string>ConveyorSorter/GVK_SmallShipGrinder</string>
+                <string>ConveyorSorter/GVK_LargeBlockDrillReskin</string>
+                <string>ConveyorSorter/GVK_SmallBlockDrillReskin</string>
+                <string>ConveyorSorter/GVK_LargeShipWelderReskin</string>
+                <string>ConveyorSorter/GVK_SmallShipWelderReskin</string>
+                <string>ConveyorSorter/GVK_LargeShipGrinderReskin</string>
+                <string>ConveyorSorter/GVK_SmallShipGrinderReskin</string>
             </ItemIds>
         </Category>
 

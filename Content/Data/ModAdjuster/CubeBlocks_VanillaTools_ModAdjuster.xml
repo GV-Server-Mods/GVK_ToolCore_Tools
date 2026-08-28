@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<CubeBlocks>
+		<!-- =================================================================== -->
+		<!-- VANILLA TOOL DEPRECATION (Solution 1: Graceful Coexistence)         -->
+		<!-- Hides vanilla tools from G-menu while keeping definitions active   -->
+		<!-- for existing grids and legacy blueprints.                           -->
+		<!-- =================================================================== -->
+
+		<!-- Large Ship Welder -->
+		<Definition xsi:type="MyObjectBuilder_ShipWelderDefinition">
+			<Id>
+				<TypeId>ShipWelder</TypeId>
+				<SubtypeId>LargeShipWelder</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<Components>
+				<Component Subtype="SteelPlate" Count="5" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="LargeTube" Count="1" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="2" />
+				<Component Subtype="Construction" Count="5" />
+				<Component Subtype="SteelPlate" Count="15" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<SensorRadius>4</SensorRadius>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipWelderDefinition">
+			<Id>
+				<TypeId>ShipWelder</TypeId>
+				<SubtypeId>LargeShipWelderReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<Components>
+				<Component Subtype="SteelPlate" Count="5" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="LargeTube" Count="1" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="2" />
+				<Component Subtype="Construction" Count="5" />
+				<Component Subtype="SteelPlate" Count="15" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<SensorRadius>4</SensorRadius>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Small Ship Welder -->
+		<Definition xsi:type="MyObjectBuilder_ShipWelderDefinition">
+			<Id>
+				<TypeId>ShipWelder</TypeId>
+				<SubtypeId>SmallShipWelder</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<Components>
+				<Component Subtype="SteelPlate" Count="2" />
+				<Component Subtype="Construction" Count="15" />
+				<Component Subtype="SmallTube" Count="4" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="2" />
+				<Component Subtype="Construction" Count="2" />
+				<Component Subtype="SteelPlate" Count="10" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<SensorRadius>1.3</SensorRadius>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipWelderDefinition">
+			<Id>
+				<TypeId>ShipWelder</TypeId>
+				<SubtypeId>SmallShipWelderReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<Components>
+				<Component Subtype="SteelPlate" Count="2" />
+				<Component Subtype="Construction" Count="15" />
+				<Component Subtype="SmallTube" Count="4" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="2" />
+				<Component Subtype="Construction" Count="2" />
+				<Component Subtype="SteelPlate" Count="10" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<SensorRadius>1.3</SensorRadius>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Large Block Drill -->
+		<Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
+			<Id>
+				<TypeId>Drill</TypeId>
+				<SubtypeId>LargeBlockDrill</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.1</SensorRadius>
+			<SensorOffset>2.8</SensorOffset>
+			<CutOutRadius>2.1</CutOutRadius>
+			<CutOutOffset>2.8</CutOutOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
+			<Id>
+				<TypeId>Drill</TypeId>
+				<SubtypeId>LargeBlockDrillReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.1</SensorRadius>
+			<SensorOffset>2.8</SensorOffset>
+			<CutOutRadius>2.1</CutOutRadius>
+			<CutOutOffset>2.8</CutOutOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Small Block Drill -->
+		<Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
+			<Id>
+				<TypeId>Drill</TypeId>
+				<SubtypeId>SmallBlockDrill</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>1.5</SensorRadius>
+			<SensorOffset>0.8</SensorOffset>
+			<CutOutRadius>1.5</CutOutRadius>
+			<CutOutOffset>0.6</CutOutOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
+			<Id>
+				<TypeId>Drill</TypeId>
+				<SubtypeId>SmallBlockDrillReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>1.5</SensorRadius>
+			<SensorOffset>0.8</SensorOffset>
+			<CutOutRadius>1.5</CutOutRadius>
+			<CutOutOffset>0.6</CutOutOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Advanced Ship Drill (Prototech) -->
+		<Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
+			<Id>
+				<TypeId>Drill</TypeId>
+				<SubtypeId>LargeBlockPrototechDrill</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<DisplayName>Advanced Ship Drill</DisplayName>
+			<Components>
+				<Component Subtype="SteelPlate" Count="180" />
+				<Component Subtype="PrototechMachinery" Count="5" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="12" />
+				<Component Subtype="Motor" Count="5" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="120" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Large Ship Grinder -->
+		<Definition xsi:type="MyObjectBuilder_ShipGrinderDefinition">
+			<Id>
+				<TypeId>ShipGrinder</TypeId>
+				<SubtypeId>LargeShipGrinder</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.8</SensorRadius>
+			<SensorOffset>1.0</SensorOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipGrinderDefinition">
+			<Id>
+				<TypeId>ShipGrinder</TypeId>
+				<SubtypeId>LargeShipGrinderReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.8</SensorRadius>
+			<SensorOffset>1.0</SensorOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<!-- Small Ship Grinder -->
+		<Definition xsi:type="MyObjectBuilder_ShipGrinderDefinition">
+			<Id>
+				<TypeId>ShipGrinder</TypeId>
+				<SubtypeId>SmallShipGrinder</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.6</SensorRadius>
+			<SensorOffset>1.0</SensorOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_ShipGrinderDefinition">
+			<Id>
+				<TypeId>ShipGrinder</TypeId>
+				<SubtypeId>SmallShipGrinderReskin</SubtypeId>
+			</Id>
+			<Public>false</Public>
+			<GuiVisible>false</GuiVisible>
+			<SensorRadius>2.6</SensorRadius>
+			<SensorOffset>1.0</SensorOffset>
+			<DeformationRatio>0.2</DeformationRatio>
+			<UsesDeformation>false</UsesDeformation>
+		</Definition>
+	</CubeBlocks>
+</Definitions>

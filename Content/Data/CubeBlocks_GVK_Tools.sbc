@@ -1,0 +1,1660 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <CubeBlocks>
+        <!-- =================================================================== -->
+        <!-- GVK TOOLCORE TOOLS (Deserts of Kharak Balance)                       -->
+        <!-- Sorter-based ToolCore replacements & Coalition Salvage Beam Turret. -->
+        <!-- =================================================================== -->
+
+        <!-- =================================================================== -->
+        <!-- 1. SALVAGE BEAM TURRET                                              -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeSalvageBeamTurret</SubtypeId>
+            </Id>
+            <DisplayName>Salvage Beam Turret</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\LG_SimpleLaserMultitool_Turret.dds</Icon>
+            <Description>Heavy-duty Coalition directed-energy utility turret. Range: 150m (Weld), 100m (Grind).</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="2" z="1" />
+            <ModelOffset x="0" y="1.25" z="0" />
+            <Model>Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <Components>
+                <Component Subtype="SteelPlate" Count="180" />
+                <Component Subtype="Construction" Count="40" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="Computer" Count="25" />
+                <Component Subtype="Motor" Count="30" />
+                <Component Subtype="PowerCell" Count="10" />
+                <Component Subtype="SteelPlate" Count="120" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS3.mwm" />
+            </BuildProgressModels>
+            <InventorySize>
+                <X>3</X>
+                <Y>3</Y>
+                <Z>2</Z>
+            </InventorySize>
+            <BlockPairName>GVK_SalvageBeamTurret</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>40</BuildTimeSeconds>
+            <Center x="0" y="0" z="0" />
+            <DeformationRatio>0.2</DeformationRatio>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>190</PCU>
+            <ToolValues Type="Weld">
+                <Turret>
+                    <TargetRadius>150</TargetRadius>
+                    <Subpart>
+                        <Name>GatlingTurretBase1</Name>
+                        <RotationAxis>Up</RotationAxis>
+                        <RotationSpeed>30</RotationSpeed>
+                    </Subpart>
+                    <Subpart>
+                        <Name>GatlingTurretBase2</Name>
+                        <RotationAxis>Right</RotationAxis>
+                        <RotationSpeed>30</RotationSpeed>
+                        <MinRotation>-30</MinRotation>
+                        <MaxRotation>125</MaxRotation>
+                    </Subpart>
+                    <AimingTolerance>10</AimingTolerance>
+                </Turret>
+                <PickUpFloatings>true</PickUpFloatings>
+                <EffectShape>Line</EffectShape>
+                <WorkOrder>Backward</WorkOrder>
+                <WorkOrigin>Emitter</WorkOrigin>
+                <WorkRate>1</WorkRate>
+                <Speed>1</Speed>
+                <UpdateInterval>20</UpdateInterval>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <CacheBlocks>true</CacheBlocks>
+                <Emitter>detector_shiptool_1</Emitter>
+                <Offset x="0" y="0" z="0" />
+                <Radius>2.5</Radius>
+                <Length>150</Length>
+                <HarvestRatio>1</HarvestRatio>
+                <ActivePower>0.75</ActivePower>
+                <NonFriendlyMult>1</NonFriendlyMult>
+                <DamageCharacters>false</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Event Trigger="Firing">
+                    <Beam>
+                        <Start>particles1</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>.4</Width>
+                        <Color>
+                            <X>0.5</X>
+                            <Y>2.0</Y>
+                            <Z>5.0</Z>
+                            <W>0.7</W>
+                        </Color>
+                    </Beam>
+                    <Beam>
+                        <Start>particles2</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>.4</Width>
+                        <Color>
+                            <X>0.5</X>
+                            <Y>2.0</Y>
+                            <Z>5.0</Z>
+                            <W>0.7</W>
+                        </Color>
+                    </Beam>
+                    <Beam>
+                        <Start>particles3</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>.4</Width>
+                        <Color>
+                            <X>0.5</X>
+                            <Y>2.0</Y>
+                            <Z>5.0</Z>
+                            <W>0.7</W>
+                        </Color>
+                    </Beam>
+                    <Beam>
+                        <Start>particles4</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+						<Width>.4</Width>
+						<Color>
+                            <X>0.5</X>
+                            <Y>2.0</Y>
+                            <Z>5.0</Z>
+                            <W>0.7</W>
+                        </Color>
+                    </Beam>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserTurretWeldHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+            <ToolValues Type="Grind">
+                <Turret>
+                    <TargetRadius>150</TargetRadius>
+                    <Subpart>
+                        <Name>GatlingTurretBase1</Name>
+                        <RotationAxis>Up</RotationAxis>
+                        <RotationSpeed>30</RotationSpeed>
+                    </Subpart>
+                    <Subpart>
+                        <Name>GatlingTurretBase2</Name>
+                        <RotationAxis>Right</RotationAxis>
+                        <RotationSpeed>30</RotationSpeed>
+                        <MinRotation>-30</MinRotation>
+                        <MaxRotation>125</MaxRotation>
+                    </Subpart>
+                    <AimingTolerance>15</AimingTolerance>
+                </Turret>
+                <PickUpFloatings>true</PickUpFloatings>
+                <EffectShape>Line</EffectShape>
+                <WorkOrder>Forward</WorkOrder>
+                <WorkOrigin>Emitter</WorkOrigin>
+                <WorkRate>1</WorkRate>
+                <Speed>1</Speed>
+                <UpdateInterval>20</UpdateInterval>
+                <Emitter>detector_shiptool_1</Emitter>
+                <Offset x="0" y="0" z="0" />
+                <Radius>2.5</Radius>
+                <Length>150</Length>
+                <HarvestRatio>1</HarvestRatio>
+                <ActivePower>0.75</ActivePower>
+                <NonFriendlyMult>0.25</NonFriendlyMult>
+                <DamageCharacters>true</DamageCharacters>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <CacheBlocks>true</CacheBlocks>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Event Trigger="Firing">
+                    <Beam>
+                        <Start>particles1</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>0.4</Width>
+                        <Color>
+                            <X>10</X>
+                            <Y>4</Y>
+                            <Z>1</Z>
+                            <W>0.75</W>
+                        </Color>
+                    </Beam>
+                    <Beam>
+                        <Start>particles2</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>0.4</Width>
+						<Color>
+							<X>10</X>
+							<Y>4</Y>
+							<Z>1</Z>
+							<W>0.75</W>
+						</Color>
+					</Beam>
+                    <Beam>
+                        <Start>particles3</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>0.4</Width>
+						<Color>
+							<X>10</X>
+							<Y>4</Y>
+							<Z>1</Z>
+							<W>0.75</W>
+						</Color>
+					</Beam>
+                    <Beam>
+                        <Start>particles4</Start>
+                        <EndLocation>Hit</EndLocation>
+                        <Material>LaserMultitool_Beam</Material>
+                        <Width>0.4</Width>
+						<Color>
+							<X>10</X>
+							<Y>4</Y>
+							<Z>1</Z>
+							<W>0.75</W>
+						</Color>
+					</Beam>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserTurretGrindHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgGrindIdle</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 1. LARGE BLOCK DRILL                                                -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeBlockDrill</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_Drill</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\drill.dds</Icon>
+            <Description>Description_Drill</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="3" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\drill.mwm</Model>
+            <PlaceDecals>false</PlaceDecals>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="180" />
+                <Component Subtype="Construction" Count="40" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="Motor" Count="5" />
+                <Component Subtype="Computer" Count="5" />
+                <Component Subtype="SteelPlate" Count="120" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="1" EndY="3" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Left" StartX="2" StartY="0" EndX="3" EndY="1" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\DrillConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\DrillConstruction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\DrillConstruction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_Drill</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>30</BuildTimeSeconds>
+            <Center x="0" y="0" z="2" />
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>190</PCU>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>1.7</X>
+                <Y>1.7</Y>
+                <Z>1.75</Z>
+            </InventorySize>
+            <ToolValues Type="Drill">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Uniform</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-2.8" />
+                <Radius>2.1</Radius>
+                <Speed>1</Speed>
+                <HarvestRatio>1</HarvestRatio>
+                <DestroyVoxels>true</DestroyVoxels>
+                <UpdateInterval>60</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_DrillHead</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                        <Speed>360</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolShipDrillIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 2. SMALL BLOCK DRILL                                                -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallBlockDrill</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_Drill</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\drill.dds</Icon>
+            <Description>Description_Drill</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Small\driller.mwm</Model>
+            <PlaceDecals>false</PlaceDecals>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="20" />
+                <Component Subtype="Construction" Count="30" />
+                <Component Subtype="LargeTube" Count="4" />
+                <Component Subtype="Motor" Count="1" />
+                <Component Subtype="Computer" Count="1" />
+                <Component Subtype="SteelPlate" Count="12" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <Center x="1" y="1" z="5" />
+            <MountPoints>
+                <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" Default="true" />
+                <MountPoint Side="Right" StartX="0" StartY="1" EndX="2" EndY="2" />
+                <MountPoint Side="Left" StartX="4" StartY="1" EndX="6" EndY="2" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\DrillerConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\DrillerConstruction_2.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_Drill</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>20</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>190</PCU>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>1.6</X>
+                <Y>1.6</Y>
+                <Z>1.6</Z>
+            </InventorySize>
+            <ToolValues Type="Drill">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Uniform</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-0.8" />
+                <Radius>1.5</Radius>
+                <Speed>1</Speed>
+                <HarvestRatio>1</HarvestRatio>
+                <DestroyVoxels>true</DestroyVoxels>
+                <UpdateInterval>60</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_DrillHead</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                        <Speed>360</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolShipDrillIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 3. ADVANCED SHIP DRILL (Prototech / Relic)                           -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargePrototechDrill</SubtypeId>
+            </Id>
+            <DisplayName>Advanced Ship Drill</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\drill.dds</Icon>
+            <Description>High-efficiency Prototech-enhanced ship drill. Features accelerated rotation, increased excavation radius, and improved yield.</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="3" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\drill.mwm</Model>
+            <PlaceDecals>false</PlaceDecals>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="180" />
+                <Component Subtype="PrototechMachinery" Count="5" />
+                <Component Subtype="Construction" Count="40" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="Motor" Count="5" />
+                <Component Subtype="Computer" Count="5" />
+                <Component Subtype="SteelPlate" Count="120" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="1" EndY="3" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Left" StartX="2" StartY="0" EndX="3" EndY="1" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\DrillConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\DrillConstruction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\DrillConstruction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_AdvancedDrill</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>45</BuildTimeSeconds>
+            <Center x="0" y="0" z="2" />
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>250</PCU>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.005</PowerInput>
+            <InventorySize>
+                <X>2.0</X>
+                <Y>2.0</Y>
+                <Z>2.0</Z>
+            </InventorySize>
+            <ToolValues Type="Drill">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Uniform</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-2.8" />
+                <Radius>3.0</Radius>
+                <Speed>1.5</Speed>
+                <HarvestRatio>1.25</HarvestRatio>
+                <DestroyVoxels>true</DestroyVoxels>
+                <UpdateInterval>60</UpdateInterval>
+                <ActivePower>0.005</ActivePower>
+                <IdlePower>0.0002</IdlePower>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_DrillHead</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                        <Speed>540</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolShipDrillIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 4. LARGE SHIP WELDER                                                -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeShipWelder</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipWelder</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\Welder.dds</Icon>
+            <Description>Description_ShipWelder</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="0" y="0" z="1" />
+            <Model>Models\Cubes\Large\Welder.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="5" />
+                <Component Subtype="Construction" Count="25" />
+                <Component Subtype="LargeTube" Count="1" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="5" />
+                <Component Subtype="SteelPlate" Count="15" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="1.1" StartY="0" EndX="2" EndY="1" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.9" EndY="1" />
+                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.9" />
+                <MountPoint Side="Bottom" StartX="0" StartY="1.1" EndX="1" EndY="2" />
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\WelderConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\WelderConstruction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WelderConstruction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_ShipWelder</BlockPairName>
+            <MirroringZ>X</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>24</BuildTimeSeconds>
+            <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+            <DamagedSound>ParticleElectrical</DamagedSound>
+            <Flare>ShipWelderLarge</Flare>
+            <EmissiveColorPreset>Welder</EmissiveColorPreset>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>150</PCU>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.85</X>
+                <Y>0.85</Y>
+                <Z>0.85</Z>
+            </InventorySize>
+            <ToolValues Type="Weld">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Backward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.5" />
+                <Radius>4.0</Radius>
+                <Speed>2</Speed>
+                <WorkRate>4</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>true</AffectOwnGrid>
+                <DamageCharacters>false</DamageCharacters>
+                <CacheBlocks>true</CacheBlocks>
+                <PickUpFloatings>false</PickUpFloatings>
+                <Event Trigger="Firing">
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserSparksHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 5. SMALL SHIP WELDER                                                -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallShipWelder</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipWelder</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\Welder.dds</Icon>
+            <Description>Description_ShipWelder</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="1" y="1" z="3" />
+            <Model>Models\Cubes\Small\Welder.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="2" />
+                <Component Subtype="Construction" Count="15" />
+                <Component Subtype="SmallTube" Count="4" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="2" />
+                <Component Subtype="SteelPlate" Count="10" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="4" StartY="0.5" EndX="5.8" EndY="2.5" />
+                <MountPoint Side="Right" StartX="0.2" StartY="0.5" EndX="2" EndY="2.5" />
+                <MountPoint Side="Top" StartX="1" StartY="0.7" EndX="2" EndY="2.5" />
+                <MountPoint Side="Top" StartX="0.3" StartY="0.2" EndX="2.7" EndY="0.7" />
+                <MountPoint Side="Bottom" StartX="1" StartY="3.5" EndX="2" EndY="5.3" />
+                <MountPoint Side="Bottom" StartX="0.3" StartY="5.3" EndX="2.7" EndY="5.8" />
+                <MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.35" EndY="2.75" />
+                <MountPoint Side="Back" StartX="2.65" StartY="0.25" EndX="2.75" EndY="2.75" />
+                <MountPoint Side="Back" StartX="0.35" StartY="0.25" EndX="2.65" EndY="0.35" />
+                <MountPoint Side="Back" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.5" File="Models\Cubes\Small\WelderConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\WelderConstruction_2.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>GVK_ShipWelder</BlockPairName>
+            <MirroringZ>X</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>18</BuildTimeSeconds>
+            <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+            <DamagedSound>ParticleElectrical</DamagedSound>
+            <Flare>ShipWelder</Flare>
+            <EmissiveColorPreset>Welder</EmissiveColorPreset>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>150</PCU>
+            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.55</X>
+                <Y>0.55</Y>
+                <Z>0.55</Z>
+            </InventorySize>
+            <ToolValues Type="Weld">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Backward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-0.8" />
+                <Radius>2.3</Radius>
+                <Speed>2</Speed>
+                <WorkRate>4</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>true</AffectOwnGrid>
+                <DamageCharacters>false</DamageCharacters>
+                <CacheBlocks>true</CacheBlocks>
+                <PickUpFloatings>false</PickUpFloatings>
+                <Event Trigger="Firing">
+                    <Sound>
+                        <Name>ToolSmlWeldMetal</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserSparksHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolSmlWeldMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 6. LARGE SHIP GRINDER                                               -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeShipGrinder</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipGrinder</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\Grinder.dds</Icon>
+            <Description>Description_ShipGrinder</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="0" y="0" z="1" />
+            <Model>Models\Cubes\Large\Grinder.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="15" />
+                <Component Subtype="Construction" Count="25" />
+                <Component Subtype="LargeTube" Count="1" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="5" />
+                <Component Subtype="SteelPlate" Count="5" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="1.1" StartY="0" EndX="2" EndY="1" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.9" EndY="1" />
+                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.9" />
+                <MountPoint Side="Bottom" StartX="0" StartY="1.1" EndX="1" EndY="2" />
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\GrinderConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\GrinderConstruction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\GrinderConstruction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_ShipGrinder</BlockPairName>
+            <MirroringZ>X</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>24</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>100</PCU>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.85</X>
+                <Y>0.85</Y>
+                <Z>0.85</Z>
+            </InventorySize>
+            <ToolValues Type="Grind">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Forward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.0" />
+                <Radius>2.8</Radius>
+                <Speed>2</Speed>
+                <WorkRate>2</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <GrindToWaste>false</GrindToWaste>
+                <CacheBlocks>true</CacheBlocks>
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_grinder1</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Animation>
+                        <Subpart>subpart_grinder2</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolLrgGrindIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>ShipGrinder</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgGrindMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 7. SMALL SHIP GRINDER                                               -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallShipGrinder</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipGrinder</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\Grinder.dds</Icon>
+            <Description>Description_ShipGrinder</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="1" y="1" z="3" />
+            <Model>Models\Cubes\Small\Grinder.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="10" />
+                <Component Subtype="Construction" Count="15" />
+                <Component Subtype="SmallTube" Count="4" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="2" />
+                <Component Subtype="SteelPlate" Count="2" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="3.2" StartY="0.3" EndX="5.8" EndY="2.7" />
+                <MountPoint Side="Right" StartX="0.2" StartY="0.3" EndX="2.8" EndY="2.7" />
+                <MountPoint Side="Top" StartX="0.3" StartY="0.2" EndX="2.7" EndY="2.8" />
+                <MountPoint Side="Bottom" StartX="0.3" StartY="3.2" EndX="2.7" EndY="5.8" />
+                <MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.35" EndY="2.75" Default="true" />
+                <MountPoint Side="Back" StartX="2.65" StartY="0.25" EndX="2.75" EndY="2.75" />
+                <MountPoint Side="Back" StartX="0.35" StartY="0.25" EndX="2.65" EndY="0.35" />
+                <MountPoint Side="Back" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.5" File="Models\Cubes\Small\GrinderConstruction_1.mwm" />
+                <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\GrinderConstruction_2.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>GVK_ShipGrinder</BlockPairName>
+            <MirroringZ>X</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>18</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>100</PCU>
+            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.55</X>
+                <Y>0.55</Y>
+                <Z>0.55</Z>
+            </InventorySize>
+            <ToolValues Type="Grind">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Forward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.0" />
+                <Radius>2.6</Radius>
+                <Speed>2</Speed>
+                <WorkRate>2</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <GrindToWaste>false</GrindToWaste>
+                <CacheBlocks>true</CacheBlocks>
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_grinder1</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Animation>
+                        <Subpart>subpart_grinder2</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolSmlGrindIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>ShipGrinder</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolSmlGrindMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+
+        <!-- =================================================================== -->
+        <!-- 9. LARGE BLOCK DRILL RESKIN (Heavy Industry DLC)                    -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeBlockDrillReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_DrillReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\DrillReskin.dds</Icon>
+            <Description>Description_Drill</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="3" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\DrillReskin.mwm</Model>
+            <PlaceDecals>false</PlaceDecals>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="180" />
+                <Component Subtype="Construction" Count="40" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="Motor" Count="5" />
+                <Component Subtype="Computer" Count="5" />
+                <Component Subtype="SteelPlate" Count="120" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="1" EndY="3" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Left" StartX="2" StartY="0" EndX="3" EndY="1" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\DrillReskin_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\DrillReskin_Construction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\DrillReskin_Construction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_DrillReskin</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>30</BuildTimeSeconds>
+            <Center x="0" y="0" z="2" />
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>190</PCU>
+            <DLC>ApexSurvival</DLC>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>1.7</X>
+                <Y>1.7</Y>
+                <Z>1.75</Z>
+            </InventorySize>
+            <ToolValues Type="Drill">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Uniform</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-2.8" />
+                <Radius>2.1</Radius>
+                <Speed>1</Speed>
+                <HarvestRatio>1</HarvestRatio>
+                <DestroyVoxels>true</DestroyVoxels>
+                <UpdateInterval>60</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_DrillHeadReskin</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                        <Speed>360</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolShipDrillIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 10. SMALL BLOCK DRILL RESKIN (Heavy Industry DLC)                   -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallBlockDrillReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_DrillReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\DrillReskinSmall.dds</Icon>
+            <Description>Description_Drill</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Small\DrillReskinSmall.mwm</Model>
+            <PlaceDecals>false</PlaceDecals>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="20" />
+                <Component Subtype="Construction" Count="30" />
+                <Component Subtype="LargeTube" Count="4" />
+                <Component Subtype="Motor" Count="1" />
+                <Component Subtype="Computer" Count="1" />
+                <Component Subtype="SteelPlate" Count="12" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <Center x="1" y="1" z="5" />
+            <MountPoints>
+                <MountPoint Side="Back" StartX="0" StartY="0.5" EndX="3" EndY="2.5" Default="true" />
+                <MountPoint Side="Right" StartX="0" StartY="1" EndX="1" EndY="2" />
+                <MountPoint Side="Left" StartX="5" StartY="1" EndX="6" EndY="2" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\DrillReskinSmall_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\DrillReskinSmall_Construction_2.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_DrillReskin</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>20</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>190</PCU>
+            <DLC>ApexSurvival</DLC>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>1.6</X>
+                <Y>1.6</Y>
+                <Z>1.6</Z>
+            </InventorySize>
+            <ToolValues Type="Drill">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Uniform</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-0.8" />
+                <Radius>1.5</Radius>
+                <Speed>1</Speed>
+                <HarvestRatio>1</HarvestRatio>
+                <DestroyVoxels>true</DestroyVoxels>
+                <UpdateInterval>60</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
+                <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_DrillHeadReskinSmall</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                        <Speed>360</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolShipDrillIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>MaterialProperties/ShipDrill</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 11. LARGE SHIP WELDER RESKIN (Heavy Industry DLC)                   -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeShipWelderReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipWelderReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\WelderReskin.dds</Icon>
+            <Description>Description_ShipWelder</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="0" y="0" z="1" />
+            <Model>Models\Cubes\Large\WelderReskin.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="5" />
+                <Component Subtype="Construction" Count="25" />
+                <Component Subtype="LargeTube" Count="1" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="5" />
+                <Component Subtype="SteelPlate" Count="15" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="1.1" StartY="0.10" EndX="2" EndY="0.90" />
+                <MountPoint Side="Right" StartX="0" StartY="0.10" EndX="0.9" EndY="0.9" />
+                <MountPoint Side="Top" StartX="0.1" StartY="0" EndX="0.90" EndY="0.90" />
+                <MountPoint Side="Bottom" StartX="0.1" StartY="1.10" EndX="0.90" EndY="2" />
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\WelderReskin_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\WelderReskin_Construction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WelderReskin_Construction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_ShipWelderReskin</BlockPairName>
+            <MirroringZ>Y</MirroringZ>
+            <MirroringY>Z</MirroringY>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>24</BuildTimeSeconds>
+            <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+            <DamagedSound>ParticleElectrical</DamagedSound>
+            <Flare>ShipWelderLarge</Flare>
+            <EmissiveColorPreset>Welder</EmissiveColorPreset>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>150</PCU>
+            <DLC>ApexSurvival</DLC>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.85</X>
+                <Y>0.85</Y>
+                <Z>0.85</Z>
+            </InventorySize>
+            <ToolValues Type="Weld">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Backward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.5" />
+                <Radius>4.0</Radius>
+                <Speed>2</Speed>
+                <WorkRate>4</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>true</AffectOwnGrid>
+                <DamageCharacters>false</DamageCharacters>
+                <CacheBlocks>true</CacheBlocks>
+                <PickUpFloatings>false</PickUpFloatings>
+                <Event Trigger="Firing">
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserSparksHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 12. SMALL SHIP WELDER RESKIN (Heavy Industry DLC)                   -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallShipWelderReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipWelderReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\WelderReskinSmall.dds</Icon>
+            <Description>Description_ShipWelder</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="1" y="1" z="3" />
+            <Model>Models\Cubes\Small\WelderReskinSmall.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="2" />
+                <Component Subtype="Construction" Count="15" />
+                <Component Subtype="SmallTube" Count="4" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="2" />
+                <Component Subtype="SteelPlate" Count="10" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="3" StartY="0.2" EndX="6" EndY="2.5" />
+                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="3" EndY="2.5" />
+                <MountPoint Side="Top" StartX="0.3" StartY="0" EndX="2.7" EndY="1" />
+                <MountPoint Side="Bottom" StartX="0.3" StartY="3" EndX="2.7" EndY="6" />
+                <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.5" File="Models\Cubes\Small\WelderReskinSmall_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\WelderReskinSmall_Construction_2.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>GVK_ShipWelderReskin</BlockPairName>
+            <MirroringZ>Y</MirroringZ>
+            <MirroringY>Z</MirroringY>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>18</BuildTimeSeconds>
+            <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+            <DamagedSound>ParticleElectrical</DamagedSound>
+            <Flare>ShipWelder</Flare>
+            <EmissiveColorPreset>Welder</EmissiveColorPreset>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>150</PCU>
+            <DLC>ApexSurvival</DLC>
+            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.55</X>
+                <Y>0.55</Y>
+                <Z>0.55</Z>
+            </InventorySize>
+            <ToolValues Type="Weld">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Backward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-0.8" />
+                <Radius>2.3</Radius>
+                <Speed>2</Speed>
+                <WorkRate>4</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>true</AffectOwnGrid>
+                <DamageCharacters>false</DamageCharacters>
+                <CacheBlocks>true</CacheBlocks>
+                <PickUpFloatings>false</PickUpFloatings>
+                <Event Trigger="Firing">
+                    <Sound>
+                        <Name>ToolSmlWeldMetal</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserSparksHit</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolSmlWeldMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 13. LARGE SHIP GRINDER RESKIN (Heavy Industry DLC)                  -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_LargeShipGrinderReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipGrinderReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\GrinderReskin.dds</Icon>
+            <Description>Description_ShipGrinder</Description>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="0" y="0" z="1" />
+            <Model>Models\Cubes\Large\GrinderReskin.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="15" />
+                <Component Subtype="Construction" Count="25" />
+                <Component Subtype="LargeTube" Count="1" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="5" />
+                <Component Subtype="SteelPlate" Count="5" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="1.1" StartY="0.10" EndX="2" EndY="0.90" />
+                <MountPoint Side="Right" StartX="0" StartY="0.10" EndX="0.9" EndY="0.9" />
+                <MountPoint Side="Top" StartX="0.1" StartY="0" EndX="0.90" EndY="0.90" />
+                <MountPoint Side="Bottom" StartX="0.1" StartY="1.10" EndX="0.90" EndY="2" />
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\GrinderReskin_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\GrinderReskin_Construction_2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\GrinderReskin_Construction_3.mwm" />
+            </BuildProgressModels>
+            <VoxelPlacement>
+                <StaticMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0</MinAllowed>
+                </StaticMode>
+                <DynamicMode>
+                    <PlacementMode>OutsideVoxel</PlacementMode>
+                    <MaxAllowed>0.2</MaxAllowed>
+                    <MinAllowed>0.01</MinAllowed>
+                </DynamicMode>
+            </VoxelPlacement>
+            <BlockPairName>GVK_ShipGrinderReskin</BlockPairName>
+            <MirroringZ>Y</MirroringZ>
+            <MirroringY>Z</MirroringY>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>24</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>100</PCU>
+            <DLC>ApexSurvival</DLC>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.85</X>
+                <Y>0.85</Y>
+                <Z>0.85</Z>
+            </InventorySize>
+            <ToolValues Type="Grind">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Forward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.0" />
+                <Radius>2.8</Radius>
+                <Speed>2</Speed>
+                <WorkRate>2</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <GrindToWaste>false</GrindToWaste>
+                <CacheBlocks>true</CacheBlocks>
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_grinder1</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Animation>
+                        <Subpart>subpart_grinder2</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolLrgGrindIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>ShipGrinder</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolLrgGrindMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+        <!-- =================================================================== -->
+        <!-- 14. SMALL SHIP GRINDER RESKIN (Heavy Industry DLC)                  -->
+        <!-- =================================================================== -->
+        <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
+            <Id>
+                <TypeId>ConveyorSorter</TypeId>
+                <SubtypeId>GVK_SmallShipGrinderReskin</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Block_ShipGrinderReskin</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\GrinderReskinSmall.dds</Icon>
+            <Description>Description_ShipGrinder</Description>
+            <CubeSize>Small</CubeSize>
+            <GuiVisible>true</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="3" y="3" z="6" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Center x="1" y="1" z="3" />
+            <Model>Models\Cubes\Small\GrinderReskinSmall.mwm</Model>
+            <UseModelIntersection>true</UseModelIntersection>
+            <UsesDeformation>false</UsesDeformation>
+            <DeformationRatio>0.2</DeformationRatio>
+            <Components>
+                <Component Subtype="SteelPlate" Count="10" />
+                <Component Subtype="Construction" Count="15" />
+                <Component Subtype="SmallTube" Count="4" />
+                <Component Subtype="Motor" Count="4" />
+                <Component Subtype="Computer" Count="2" />
+                <Component Subtype="Construction" Count="2" />
+                <Component Subtype="SteelPlate" Count="2" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Left" StartX="3" StartY="0.2" EndX="6" EndY="2.5" />
+                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="3" EndY="2.5" />
+                <MountPoint Side="Top" StartX="0.3" StartY="0" EndX="2.7" EndY="1" />
+                <MountPoint Side="Bottom" StartX="0.3" StartY="3" EndX="2.7" EndY="6" />
+                <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" Default="true" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.5" File="Models\Cubes\Small\GrinderReskinSmall_Construction_1.mwm" />
+                <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\GrinderReskinSmall_Construction_2.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>GVK_ShipGrinderReskin</BlockPairName>
+            <MirroringZ>Y</MirroringZ>
+            <MirroringY>Z</MirroringY>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>18</BuildTimeSeconds>
+            <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+            <DamagedSound>ParticleHeavyMech</DamagedSound>
+            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <PCU>100</PCU>
+            <DLC>ApexSurvival</DLC>
+            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Defense</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
+            <InventorySize>
+                <X>0.55</X>
+                <Y>0.55</Y>
+                <Z>0.55</Z>
+            </InventorySize>
+            <ToolValues Type="Grind">
+                <EffectShape>Sphere</EffectShape>
+                <WorkOrder>Forward</WorkOrder>
+                <WorkOrigin>Centre</WorkOrigin>
+                <Offset x="0" y="0" z="-1.0" />
+                <Radius>2.6</Radius>
+                <Speed>2</Speed>
+                <WorkRate>2</WorkRate>
+                <UpdateInterval>20</UpdateInterval>
+                <ActivePower>0.002</ActivePower>
+                <IdlePower>0.0001</IdlePower>
+                <AffectOwnGrid>false</AffectOwnGrid>
+                <PickUpFloatings>true</PickUpFloatings>
+                <DamageCharacters>true</DamageCharacters>
+                <GrindToWaste>false</GrindToWaste>
+                <CacheBlocks>true</CacheBlocks>
+                <Event Trigger="Firing">
+                    <Animation>
+                        <Subpart>subpart_grinder1</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Animation>
+                        <Subpart>subpart_grinder2</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 -1</Direction>
+                <Speed>2</Speed>
+                    </Animation>
+                    <Sound>
+                        <Name>ToolSmlGrindIdle</Name>
+                    </Sound>
+                </Event>
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>ShipGrinder</Name>
+                        <Location>Hit</Location>
+                    </ParticleEffect>
+                    <Sound>
+                        <Name>ToolSmlGrindMetal</Name>
+                    </Sound>
+                </Event>
+            </ToolValues>
+        </Definition>
+
+    </CubeBlocks>
+</Definitions>
