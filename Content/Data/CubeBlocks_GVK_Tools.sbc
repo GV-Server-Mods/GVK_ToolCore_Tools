@@ -38,9 +38,9 @@
                 <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
             </MountPoints>
             <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\LG_SimpleLaserMultitool_Turret_BS3.mwm" />
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS3.mwm" />
             </BuildProgressModels>
             <InventorySize>
                 <X>3</X>
@@ -59,13 +59,16 @@
             <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
             <DestroySound>WepSmallWarheadExpl</DestroySound>
             <PCU>190</PCU>
+            <!-- Sorter base block power definition: prevents block from being treated as free 0MW sink by Keen engine -->
+            <ResourceSinkGroup>Utility</ResourceSinkGroup>
+            <PowerInput>0.002</PowerInput>
             <ToolValues Type="Weld">
                 <Turret>
                     <TargetRadius>150</TargetRadius>
                     <Subpart>
                         <Name>GatlingTurretBase1</Name>
                         <RotationAxis>Up</RotationAxis>
-                        <RotationSpeed>30</RotationSpeed>
+                        <RotationSpeed>45</RotationSpeed>
                     </Subpart>
                     <Subpart>
                         <Name>GatlingTurretBase2</Name>
@@ -91,56 +94,22 @@
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
+                <!-- ToolCore requires non-zero IdlePower; if omitted or 0, ToolCore evaluates required==0 as powered even on dead unpowered grids -->
+                <IdlePower>0.002</IdlePower>
                 <NonFriendlyMult>1</NonFriendlyMult>
                 <DamageCharacters>false</DamageCharacters>
                 <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
                 <Event Trigger="Firing">
                     <Beam>
-                        <Start>particles1</Start>
+                        <Start>detector_shiptool_1</Start>
                         <EndLocation>Hit</EndLocation>
                         <Material>LaserMultitool_Beam</Material>
-                        <Width>.4</Width>
+                        <Width>0.4</Width>
                         <Color>
-                            <X>0.5</X>
-                            <Y>2.0</Y>
-                            <Z>5.0</Z>
-                            <W>0.7</W>
-                        </Color>
-                    </Beam>
-                    <Beam>
-                        <Start>particles2</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-                        <Width>.4</Width>
-                        <Color>
-                            <X>0.5</X>
-                            <Y>2.0</Y>
-                            <Z>5.0</Z>
-                            <W>0.7</W>
-                        </Color>
-                    </Beam>
-                    <Beam>
-                        <Start>particles3</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-                        <Width>.4</Width>
-                        <Color>
-                            <X>0.5</X>
-                            <Y>2.0</Y>
-                            <Z>5.0</Z>
-                            <W>0.7</W>
-                        </Color>
-                    </Beam>
-                    <Beam>
-                        <Start>particles4</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-						<Width>.4</Width>
-						<Color>
-                            <X>0.5</X>
-                            <Y>2.0</Y>
-                            <Z>5.0</Z>
-                            <W>0.7</W>
+                            <X>2.5</X>
+                            <Y>10</Y>
+                            <Z>25</Z>
+                            <W>1</W>
                         </Color>
                     </Beam>
                 </Event>
@@ -160,7 +129,7 @@
                     <Subpart>
                         <Name>GatlingTurretBase1</Name>
                         <RotationAxis>Up</RotationAxis>
-                        <RotationSpeed>30</RotationSpeed>
+                        <RotationSpeed>45</RotationSpeed>
                     </Subpart>
                     <Subpart>
                         <Name>GatlingTurretBase2</Name>
@@ -184,6 +153,7 @@
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
+                <IdlePower>0.002</IdlePower>
                 <NonFriendlyMult>0.25</NonFriendlyMult>
                 <DamageCharacters>true</DamageCharacters>
                 <AffectOwnGrid>false</AffectOwnGrid>
@@ -191,53 +161,17 @@
                 <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
                 <Event Trigger="Firing">
                     <Beam>
-                        <Start>particles1</Start>
+                        <Start>detector_shiptool_1</Start>
                         <EndLocation>Hit</EndLocation>
                         <Material>LaserMultitool_Beam</Material>
                         <Width>0.4</Width>
                         <Color>
-                            <X>10</X>
-                            <Y>4</Y>
-                            <Z>1</Z>
-                            <W>0.75</W>
+                            <X>20</X>
+                            <Y>8</Y>
+                            <Z>2</Z>
+                            <W>1</W>
                         </Color>
                     </Beam>
-                    <Beam>
-                        <Start>particles2</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-                        <Width>0.4</Width>
-						<Color>
-							<X>10</X>
-							<Y>4</Y>
-							<Z>1</Z>
-							<W>0.75</W>
-						</Color>
-					</Beam>
-                    <Beam>
-                        <Start>particles3</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-                        <Width>0.4</Width>
-						<Color>
-							<X>10</X>
-							<Y>4</Y>
-							<Z>1</Z>
-							<W>0.75</W>
-						</Color>
-					</Beam>
-                    <Beam>
-                        <Start>particles4</Start>
-                        <EndLocation>Hit</EndLocation>
-                        <Material>LaserMultitool_Beam</Material>
-                        <Width>0.4</Width>
-						<Color>
-							<X>10</X>
-							<Y>4</Y>
-							<Z>1</Z>
-							<W>0.75</W>
-						</Color>
-					</Beam>
                 </Event>
                 <Event Trigger="RayHit">
                     <ParticleEffect>
@@ -341,7 +275,7 @@
                 <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_DrillHead</Subpart>
+                        <Subpart>DrillHead</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                         <Speed>360</Speed>
@@ -449,7 +383,7 @@
                 <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_DrillHead</Subpart>
+                        <Subpart>DrillHead</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                         <Speed>360</Speed>
@@ -479,14 +413,14 @@
                 <SubtypeId>GVK_LargePrototechDrill</SubtypeId>
             </Id>
             <DisplayName>Advanced Ship Drill</DisplayName>
-            <Icon>Textures\GUI\Icons\Cubes\drill.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\PrototechDrill.dds</Icon>
             <Description>High-efficiency Prototech-enhanced ship drill. Features accelerated rotation, increased excavation radius, and improved yield.</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>true</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="1" y="1" z="3" />
+            <Size x="3" y="3" z="4" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\drill.mwm</Model>
+            <Model>Models\Cubes\Large\PrototechDrill.mwm</Model>
             <PlaceDecals>false</PlaceDecals>
             <UseModelIntersection>true</UseModelIntersection>
             <UsesDeformation>false</UsesDeformation>
@@ -501,17 +435,24 @@
                 <Component Subtype="SteelPlate" Count="120" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
+            <!-- Mount points, model and build stages mirror vanilla LargeBlockPrototechDrill -->
             <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
-                <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-                <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="1" EndY="3" />
-                <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
-                <MountPoint Side="Left" StartX="2" StartY="0" EndX="3" EndY="1" />
+                <MountPoint Side="Right" StartX="0" StartY="0.5" EndX="0.4" EndY="2.5" />
+                <MountPoint Side="Right" StartX="0.4" StartY="1.2" EndX="0.8" EndY="1.8" />
+                <MountPoint Side="Left" StartX="3.6" StartY="0.5" EndX="4" EndY="2.5" />
+                <MountPoint Side="Left" StartX="3.2" StartY="1.2" EndX="3.6" EndY="1.8" />
+                <MountPoint Side="Top" StartX="0.5" StartY="0" EndX="2.5" EndY="0.4" />
+                <MountPoint Side="Top" StartX="1.4" StartY="0.4" EndX="1.6" EndY="0.6" />
+                <MountPoint Side="Bottom" StartX="0.5" StartY="3.6" EndX="2.5" EndY="4" />
+                <MountPoint Side="Bottom" StartX="1.4" StartY="3.4" EndX="1.6" EndY="3.6" />
+                <MountPoint Side="Back" StartX="0" StartY="0.3" EndX="3" EndY="2.7" Default="true" />
+                <MountPoint Side="Back" StartX="0.3" StartY="0" EndX="2.7" EndY="0.3" />
+                <MountPoint Side="Back" StartX="0.3" StartY="2.7" EndX="2.7" EndY="3" />
             </MountPoints>
             <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\DrillConstruction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\DrillConstruction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\DrillConstruction_3.mwm" />
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\PrototechDrill_Construction1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\PrototechDrill_Construction2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\PrototechDrill_Construction3.mwm" />
             </BuildProgressModels>
             <VoxelPlacement>
                 <StaticMode>
@@ -530,7 +471,7 @@
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
             <BuildTimeSeconds>45</BuildTimeSeconds>
-            <Center x="0" y="0" z="2" />
+            <Center x="1" y="1" z="3" />
             <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
             <DamagedSound>ParticleHeavyMech</DamagedSound>
             <DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
@@ -547,7 +488,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Uniform</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-2.8" />
+                <Offset x="0" y="0" z="-4" />
                 <Radius>3.0</Radius>
                 <Speed>1.5</Speed>
                 <HarvestRatio>1.25</HarvestRatio>
@@ -561,9 +502,15 @@
                 <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_DrillHead</Subpart>
+                        <Subpart>PrototechDrill_Front</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
+                        <Speed>540</Speed>
+                    </Animation>
+                    <Animation>
+                        <Subpart>PrototechDrill_Mid</Subpart>
+                        <Type>Rotate</Type>
+                        <Direction>0 0 1</Direction>
                         <Speed>540</Speed>
                     </Animation>
                     <Sound>
@@ -659,7 +606,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Backward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.5" />
+                <Offset x="0" y="0" z="-2.684025" />
                 <Radius>4.0</Radius>
                 <Speed>2</Speed>
                 <WorkRate>4</WorkRate>
@@ -757,7 +704,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Backward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-0.8" />
+                <Offset x="0" y="0" z="-1.328698" />
                 <Radius>2.3</Radius>
                 <Speed>2</Speed>
                 <WorkRate>4</WorkRate>
@@ -860,7 +807,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Forward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.0" />
+                <Offset x="0" y="0" z="-1.580273" />
                 <Radius>2.8</Radius>
                 <Speed>2</Speed>
                 <WorkRate>2</WorkRate>
@@ -874,13 +821,13 @@
                 <CacheBlocks>true</CacheBlocks>
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_grinder1</Subpart>
+                        <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 1</Direction>
                 <Speed>2</Speed>
                     </Animation>
                     <Animation>
-                        <Subpart>subpart_grinder2</Subpart>
+                        <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                 <Speed>2</Speed>
@@ -967,7 +914,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Forward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.0" />
+                <Offset x="0" y="0" z="-1.080327" />
                 <Radius>2.6</Radius>
                 <Speed>2</Speed>
                 <WorkRate>2</WorkRate>
@@ -981,13 +928,13 @@
                 <CacheBlocks>true</CacheBlocks>
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_grinder1</Subpart>
+                        <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 1</Direction>
                 <Speed>2</Speed>
                     </Animation>
                     <Animation>
-                        <Subpart>subpart_grinder2</Subpart>
+                        <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                 <Speed>2</Speed>
@@ -1100,7 +1047,7 @@
                 <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_DrillHeadReskin</Subpart>
+                        <Subpart>DrillHeadReskin</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                         <Speed>360</Speed>
@@ -1209,7 +1156,7 @@
                 <Action Type="Secondary" SizeRatio="1.35" SpeedRatio="1.5" HarvestRatio="0" />
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_DrillHeadReskinSmall</Subpart>
+                        <Subpart>DrillHeadReskinSmall</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                         <Speed>360</Speed>
@@ -1309,7 +1256,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Backward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.5" />
+                <Offset x="0" y="0" z="-2.684025" />
                 <Radius>4.0</Radius>
                 <Speed>2</Speed>
                 <WorkRate>4</WorkRate>
@@ -1404,7 +1351,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Backward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-0.8" />
+                <Offset x="0" y="0" z="-1.328698" />
                 <Radius>2.3</Radius>
                 <Speed>2</Speed>
                 <WorkRate>4</WorkRate>
@@ -1509,7 +1456,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Forward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.0" />
+                <Offset x="0" y="0" z="-1.580273" />
                 <Radius>2.8</Radius>
                 <Speed>2</Speed>
                 <WorkRate>2</WorkRate>
@@ -1523,13 +1470,13 @@
                 <CacheBlocks>true</CacheBlocks>
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_grinder1</Subpart>
+                        <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 1</Direction>
                 <Speed>2</Speed>
                     </Animation>
                     <Animation>
-                        <Subpart>subpart_grinder2</Subpart>
+                        <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                 <Speed>2</Speed>
@@ -1615,7 +1562,7 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Forward</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-1.0" />
+                <Offset x="0" y="0" z="-1.080327" />
                 <Radius>2.6</Radius>
                 <Speed>2</Speed>
                 <WorkRate>2</WorkRate>
@@ -1629,13 +1576,13 @@
                 <CacheBlocks>true</CacheBlocks>
                 <Event Trigger="Firing">
                     <Animation>
-                        <Subpart>subpart_grinder1</Subpart>
+                        <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 1</Direction>
                 <Speed>2</Speed>
                     </Animation>
                     <Animation>
-                        <Subpart>subpart_grinder2</Subpart>
+                        <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
                         <Direction>0 0 -1</Direction>
                 <Speed>2</Speed>
@@ -1655,6 +1602,5 @@
                 </Event>
             </ToolValues>
         </Definition>
-
     </CubeBlocks>
 </Definitions>

@@ -16,7 +16,7 @@ using VRageMath;
 namespace GVK_ToolCore_Tools
 {
     /// <summary>
-    /// Enforces the Stepped Funnel Clearance rule for the GVK Large Salvage Beam Turret.
+    /// Enforces the clearance rule for the GVK Large Salvage Beam Turret.
     /// Prevents players from sinking long-range beam turrets into armored chimneys, silos,
     /// or underground bunkers by requiring an expanding open-air funnel above the mounting footprint.
     /// Features:
@@ -52,6 +52,22 @@ namespace GVK_ToolCore_Tools
 
         private string _violationReason = "";
         private int _refreshBeamTicks;
+
+        // Heartbeat: forces a full re-evaluation every ~10 seconds regardless of events.
+        // Catches grid merges and any other silent grid mutations that bypass
+        // OnBlockAdded/OnBlockRemoved events. (Audit #2)
+        private const int HeartbeatInterval = 6; // 6 × Update100 (~100 ticks each) ≈ 600 ticks ≈ 10 sec
+        private int _heartbeatCounter;
+
+        // Reentrancy guard: prevents infinite EnabledChanged → CheckClearance → Enabled = false → EnabledChanged loop
+        // if Keen ever changes event dispatch timing. (Audit #4)
+        private bool _processingEnabledChange;
+
+        // Cached block orientation vectors — these never change once the block is placed.
+        // Avoids recomputing GetIntVector/GetFlippedDirection on every CheckClearance call. (Audit #10)
+        private Vector3I _cachedRightVec;
+        private Vector3I _cachedUpVec;
+        private Vector3I _cachedForwardVec;
 
         private readonly int[] _layerObstructedCounts = new int[11];
 
@@ -128,19 +144,6 @@ namespace GVK_ToolCore_Tools
             if (IsProjected(_sorter))
                 return;
 
-            // Check NPC Ownership: NPCs bypass clearance governance
-            if (IsNpcOwned(_sorter))
-            {
-                if (_terminalBlock != null)
-                {
-                    _terminalBlock.AppendingCustomInfo += AppendCustomInfo;
-                }
-                _initialized = true;
-                _isDirty = false;
-                NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
-                return;
-            }
-
             _trackedGrid = _sorter.CubeGrid;
             _trackedGrid.OnBlockAdded += OnGridModified;
             _trackedGrid.OnBlockRemoved += OnGridModified;
@@ -151,6 +154,14 @@ namespace GVK_ToolCore_Tools
             {
                 _terminalBlock.AppendingCustomInfo += AppendCustomInfo;
             }
+
+            // Cache block orientation vectors — these are fixed once the block is placed
+            // and never change, so computing them once avoids repeated lookups in CheckClearance. (Audit #10)
+            var orientation = _sorter.Orientation;
+            var rightDir = Base6Directions.GetFlippedDirection(orientation.Left);
+            _cachedRightVec = Base6Directions.GetIntVector(rightDir);
+            _cachedUpVec = Base6Directions.GetIntVector(orientation.Up);
+            _cachedForwardVec = Base6Directions.GetIntVector(orientation.Forward);
 
             CreateTerminalControls();
 
@@ -170,59 +181,52 @@ namespace GVK_ToolCore_Tools
         private void OnGridSplit(IMyCubeGrid grid1, IMyCubeGrid grid2)
         {
             _isDirty = true;
+
+            // After a split, _trackedGrid may point at the orphaned half that no longer
+            // contains the turret. Rebind events to the turret's actual grid. (Audit #15)
+            if (_sorter == null || _sorter.MarkedForClose)
+                return;
+
+            var currentGrid = _sorter.CubeGrid;
+            if (currentGrid != null && currentGrid != _trackedGrid)
+            {
+                _trackedGrid.OnBlockAdded -= OnGridModified;
+                _trackedGrid.OnBlockRemoved -= OnGridModified;
+                _trackedGrid.OnGridSplit -= OnGridSplit;
+
+                _trackedGrid = currentGrid;
+                _trackedGrid.OnBlockAdded += OnGridModified;
+                _trackedGrid.OnBlockRemoved += OnGridModified;
+                _trackedGrid.OnGridSplit += OnGridSplit;
+            }
         }
 
         private void OnEnabledChanged(IMyTerminalBlock block)
         {
+            // Reentrancy guard: CheckClearance() may set Enabled = false, which fires
+            // this event again. Guard prevents stack recursion. (Audit #4)
+            if (_processingEnabledChange)
+                return;
+
             if (_sorter == null || _sorter.MarkedForClose)
                 return;
 
-            if (IsProjected(_sorter) || IsNpcOwned(_sorter))
+            if (IsProjected(_sorter))
                 return;
 
             // When toggled ON, run an immediate clearance evaluation to prevent bypass
             if (_sorter.Enabled)
             {
-                CheckClearance();
+                _processingEnabledChange = true;
+                try
+                {
+                    CheckClearance();
+                }
+                finally
+                {
+                    _processingEnabledChange = false;
+                }
             }
-        }
-
-        /// <summary>
-        /// Determines whether the block belongs to an NPC player or NPC faction.
-        /// NPCs are exempt from clearance checks to allow custom aesthetic boss and wreck designs.
-        /// </summary>
-        private static bool IsNpcOwned(IMyCubeBlock block)
-        {
-            if (block == null) return false;
-            long ownerId = block.OwnerId;
-            if (ownerId == 0 && block.CubeGrid?.BigOwners != null && block.CubeGrid.BigOwners.Count > 0)
-            {
-                ownerId = block.CubeGrid.BigOwners[0];
-            }
-
-            if (ownerId == 0) return false;
-
-            // Faction checks
-            var faction = MyAPIGateway.Session?.Factions?.TryGetPlayerFaction(ownerId);
-            if (faction != null)
-            {
-                if (faction.IsEveryoneNpc())
-                    return true;
-
-                string tag = faction.Tag;
-                if (tag == "GAALSIEN" || tag == "DERELICT" || tag == "SPRT" || tag == "KOTH")
-                    return true;
-            }
-
-            // In Space Engineers ModAPI, NPC identities have a Steam ID of 0
-            if (MyAPIGateway.Players != null)
-            {
-                ulong steamId = MyAPIGateway.Players.TryGetSteamId(ownerId);
-                if (steamId == 0)
-                    return true;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -284,15 +288,21 @@ namespace GVK_ToolCore_Tools
             if (!_initialized || _sorter == null || _sorter.MarkedForClose || _sorter.CubeGrid == null)
                 return;
 
-            // Ignore projected grids
-            if (IsProjected(_sorter))
-                return;
+            // IsProjected() check removed here — projected blocks return early from
+            // UpdateOnceBeforeFrame() without setting _initialized = true, so they
+            // can never reach this point. (Audit #9: dead code removal)
 
-            // Ignore NPC-owned blocks
-            if (IsNpcOwned(_sorter))
-                return;
+            // Heartbeat: periodically force a full re-evaluation regardless of dirty flag.
+            // Catches grid merges and any other silent mutations that bypass
+            // OnBlockAdded/OnBlockRemoved events. (Audit #2)
+            _heartbeatCounter++;
+            if (_heartbeatCounter >= HeartbeatInterval)
+            {
+                _heartbeatCounter = 0;
+                _isDirty = true;
+            }
 
-            // Event-Driven: Only evaluate if the grid has been modified
+            // Event-Driven: Only evaluate if the grid has been modified (or heartbeat fired)
             if (!_isDirty)
                 return;
 
@@ -301,7 +311,7 @@ namespace GVK_ToolCore_Tools
         }
 
         /// <summary>
-        /// Evaluates all 522 funnel cells against the grid, tracking clearance per layer.
+        /// Evaluates all 537 funnel cells against the grid, tracking clearance per layer.
         /// </summary>
         private void CheckClearance()
         {
@@ -310,12 +320,11 @@ namespace GVK_ToolCore_Tools
                 return;
 
             var basePos = _sorter.Position;
-            var orientation = _sorter.Orientation;
 
-            var rightDir = Base6Directions.GetFlippedDirection(orientation.Left);
-            var rightVec = Base6Directions.GetIntVector(rightDir);
-            var upVec = Base6Directions.GetIntVector(orientation.Up);
-            var forwardVec = Base6Directions.GetIntVector(orientation.Forward);
+            // Use cached orientation vectors computed once in UpdateOnceBeforeFrame (Audit #10)
+            var rightVec = _cachedRightVec;
+            var upVec = _cachedUpVec;
+            var forwardVec = _cachedForwardVec;
 
             for (int k = 0; k < 11; k++)
             {
@@ -439,14 +448,6 @@ namespace GVK_ToolCore_Tools
             sb.AppendLine();
             sb.AppendLine("=== Mount Clearance Status ===");
 
-            if (IsNpcOwned(_sorter))
-            {
-                sb.AppendLine("Status: [ONLINE - NPC EXEMPT]");
-                sb.AppendLine("NPC and Relic installations bypass clearance governance.");
-                sb.AppendLine();
-                return;
-            }
-
             if (_isObstructed)
             {
                 sb.AppendLine("Status: [OFFLINE - MOUNT OBSTRUCTED]");
@@ -522,16 +523,33 @@ namespace GVK_ToolCore_Tools
 
             base.Close();
         }
+
+        /// <summary>
+        /// Clears all static state between session loads. Must be called from the session
+        /// component's UnloadData() to prevent stale entries in ActiveDrawTurrets (which
+        /// would reference disposed entities) and to allow terminal controls to re-register
+        /// on the next world load. (Audit #5, #6)
+        /// </summary>
+        internal static void ResetSessionState()
+        {
+            ActiveDrawTurrets.Clear();
+            _terminalControlsInitialized = false;
+        }
     }
 
     /// <summary>
     /// Client-side session component that renders the holographic clearance wireframe
     /// for any turrets that have the terminal toggle enabled.
+    /// Also responsible for cleaning up static state on session unload. (Audit #5, #6)
     /// </summary>
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     public class GVK_ClearanceDrawSession : MySessionComponentBase
     {
         private static readonly MyStringId WireframeMaterial = MyStringId.GetOrCompute("GizmoDrawLine");
+
+        // Snapshot buffer: reused each frame to avoid iterating the live HashSet from
+        // the render thread while the sim thread may be modifying it. (Audit #12)
+        private readonly List<GVK_SalvageTurretClearance> _drawSnapshot = new List<GVK_SalvageTurretClearance>();
 
         // Zone 1 (Work Zone): 7x7x4 from Y=0 to Y=3 (17.5m wide, 10m tall, 17.5m deep, from Y=-1.25m to Y=+8.75m)
         private static readonly BoundingBoxD BoxZone1 = new BoundingBoxD(
@@ -552,8 +570,15 @@ namespace GVK_ToolCore_Tools
 
             var cameraPos = MyAPIGateway.Session.Camera?.Position ?? Vector3D.Zero;
 
-            foreach (var turret in GVK_SalvageTurretClearance.ActiveDrawTurrets)
+            // Snapshot the set to avoid iterating a live collection from the render thread
+            // while the sim thread may be adding/removing entries via ShowClearanceWireframe
+            // or Close(). The list is reused (no allocation after first frame). (Audit #12)
+            _drawSnapshot.Clear();
+            _drawSnapshot.AddRange(GVK_SalvageTurretClearance.ActiveDrawTurrets);
+
+            for (int i = 0; i < _drawSnapshot.Count; i++)
             {
+                var turret = _drawSnapshot[i];
                 if (turret.Sorter == null || turret.Sorter.MarkedForClose || turret.Sorter.CubeGrid == null)
                     continue;
 
@@ -579,6 +604,18 @@ namespace GVK_ToolCore_Tools
                 MySimpleObjectDraw.DrawTransparentBox(ref turretWorld, ref box1, ref colorZone1, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, WireframeMaterial, false);
                 MySimpleObjectDraw.DrawTransparentBox(ref turretWorld, ref box2, ref colorZone2, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, WireframeMaterial, false);
             }
+        }
+
+        /// <summary>
+        /// Clears all static state when the world unloads. Prevents stale ActiveDrawTurrets
+        /// entries from referencing disposed entities and ensures terminal controls re-register
+        /// properly when a new world loads in the same game process. (Audit #5, #6)
+        /// </summary>
+        protected override void UnloadData()
+        {
+            GVK_SalvageTurretClearance.ResetSessionState();
+            _drawSnapshot.Clear();
+            base.UnloadData();
         }
     }
 }
