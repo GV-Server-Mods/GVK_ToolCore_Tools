@@ -113,7 +113,7 @@
                         </Color>
                     </Beam>
                 </Event>
-                <Event Trigger="RayHit">
+                <Event Trigger="Hit">
                     <ParticleEffect>
                         <Name>LaserTurretWeldHit</Name>
                         <Location>Hit</Location>
@@ -613,18 +613,13 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>true</AffectOwnGrid>
+                <AffectOwnGrid>false</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
-                <Event Trigger="Firing">
-                    <Sound>
-                        <Name>ToolLrgWeldMetal</Name>
-                    </Sound>
-                </Event>
-                <Event Trigger="RayHit">
+                <Event Trigger="Hit">
                     <ParticleEffect>
-                        <Name>LaserSparksHit</Name>
+                        <Name>ShipWelderArc</Name>
                         <Location>Hit</Location>
                     </ParticleEffect>
                     <Sound>
@@ -711,18 +706,13 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>true</AffectOwnGrid>
+                <AffectOwnGrid>false</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
-                <Event Trigger="Firing">
-                    <Sound>
-                        <Name>ToolSmlWeldMetal</Name>
-                    </Sound>
-                </Event>
-                <Event Trigger="RayHit">
+                <Event Trigger="Hit">
                     <ParticleEffect>
-                        <Name>LaserSparksHit</Name>
+                        <Name>ShipWelderArc</Name>
                         <Location>Hit</Location>
                     </ParticleEffect>
                     <Sound>
@@ -1263,18 +1253,13 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>true</AffectOwnGrid>
+                <AffectOwnGrid>false</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
-                <Event Trigger="Firing">
-                    <Sound>
-                        <Name>ToolLrgWeldMetal</Name>
-                    </Sound>
-                </Event>
-                <Event Trigger="RayHit">
+                <Event Trigger="Hit">
                     <ParticleEffect>
-                        <Name>LaserSparksHit</Name>
+                        <Name>ShipWelderArc</Name>
                         <Location>Hit</Location>
                     </ParticleEffect>
                     <Sound>
@@ -1358,18 +1343,13 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>true</AffectOwnGrid>
+                <AffectOwnGrid>false</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
-                <Event Trigger="Firing">
-                    <Sound>
-                        <Name>ToolSmlWeldMetal</Name>
-                    </Sound>
-                </Event>
-                <Event Trigger="RayHit">
+                <Event Trigger="Hit">
                     <ParticleEffect>
-                        <Name>LaserSparksHit</Name>
+                        <Name>ShipWelderArc</Name>
                         <Location>Hit</Location>
                     </ParticleEffect>
                     <Sound>
