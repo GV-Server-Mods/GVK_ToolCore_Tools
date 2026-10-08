@@ -86,7 +86,7 @@
                 <WorkRate>1</WorkRate>
                 <Speed>1</Speed>
                 <UpdateInterval>20</UpdateInterval>
-                <AffectOwnGrid>false</AffectOwnGrid>
+                <AffectOwnGrid>true</AffectOwnGrid>
                 <CacheBlocks>true</CacheBlocks>
                 <Emitter>detector_shiptool_1</Emitter>
                 <Offset x="0" y="0" z="0" />
@@ -613,7 +613,7 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>false</AffectOwnGrid>
+                <AffectOwnGrid>true</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
@@ -706,7 +706,7 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>false</AffectOwnGrid>
+                <AffectOwnGrid>true</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
@@ -1253,7 +1253,7 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>false</AffectOwnGrid>
+                <AffectOwnGrid>true</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
@@ -1343,7 +1343,7 @@
                 <UpdateInterval>20</UpdateInterval>
                 <ActivePower>0.002</ActivePower>
                 <IdlePower>0.0001</IdlePower>
-                <AffectOwnGrid>false</AffectOwnGrid>
+                <AffectOwnGrid>true</AffectOwnGrid>
                 <DamageCharacters>false</DamageCharacters>
                 <CacheBlocks>true</CacheBlocks>
                 <PickUpFloatings>false</PickUpFloatings>
