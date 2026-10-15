@@ -31,6 +31,7 @@
                 <Component Subtype="Computer" Count="25" />
                 <Component Subtype="Motor" Count="30" />
                 <Component Subtype="PowerCell" Count="10" />
+                <Component Subtype="PrototechCapacitor" Count="1" />
                 <Component Subtype="SteelPlate" Count="120" />
             </Components>
             <CriticalComponent Subtype="PowerCell" Index="0" />
