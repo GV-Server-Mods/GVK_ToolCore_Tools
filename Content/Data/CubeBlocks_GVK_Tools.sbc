@@ -289,7 +289,7 @@
                     <Animation>
                         <Subpart>DrillHead</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
+                        <Direction x="0" y="0" z="-1" />
                         <Speed>360</Speed>
                     </Animation>
                     <Sound>
@@ -397,7 +397,7 @@
                     <Animation>
                         <Subpart>DrillHead</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
+                        <Direction x="0" y="0" z="-1" />
                         <Speed>360</Speed>
                     </Animation>
                     <Sound>
@@ -516,13 +516,13 @@
                     <Animation>
                         <Subpart>PrototechDrill_Front</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
+                        <Direction x="0" y="0" z="-1" />
                         <Speed>540</Speed>
                     </Animation>
                     <Animation>
                         <Subpart>PrototechDrill_Mid</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 1</Direction>
+                        <Direction x="0" y="0" z="1" />
                         <Speed>540</Speed>
                     </Animation>
                     <Sound>
@@ -825,14 +825,14 @@
                     <Animation>
                         <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Animation>
                         <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="-1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Sound>
                         <Name>ToolLrgGrindIdle</Name>
@@ -932,14 +932,14 @@
                     <Animation>
                         <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Animation>
                         <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="-1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Sound>
                         <Name>ToolSmlGrindIdle</Name>
@@ -1051,7 +1051,7 @@
                     <Animation>
                         <Subpart>DrillHeadReskin</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
+                        <Direction x="0" y="0" z="-1" />
                         <Speed>360</Speed>
                     </Animation>
                     <Sound>
@@ -1160,7 +1160,7 @@
                     <Animation>
                         <Subpart>DrillHeadReskinSmall</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
+                        <Direction x="0" y="0" z="-1" />
                         <Speed>360</Speed>
                     </Animation>
                     <Sound>
@@ -1464,14 +1464,14 @@
                     <Animation>
                         <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Animation>
                         <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="-1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Sound>
                         <Name>ToolLrgGrindIdle</Name>
@@ -1570,14 +1570,14 @@
                     <Animation>
                         <Subpart>grinder1</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Animation>
                         <Subpart>grinder2</Subpart>
                         <Type>Rotate</Type>
-                        <Direction>0 0 -1</Direction>
-                <Speed>2</Speed>
+                        <Direction x="-1" y="0" z="0" />
+                        <Speed>900</Speed>
                     </Animation>
                     <Sound>
                         <Name>ToolSmlGrindIdle</Name>
