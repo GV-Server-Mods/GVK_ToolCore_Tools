@@ -16,7 +16,7 @@
             </Id>
             <DisplayName>Salvage Beam Turret</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\GVK_SalvagerTurret.dds</Icon>
-            <Description>Heavy-duty Coalition directed-energy utility turret. Range: 150m (Weld), 100m (Grind).</Description>
+            <Description>Heavy-duty directed-energy utility turret. Range: 150m (Weld), 150m (Grind).</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>true</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
@@ -48,15 +48,15 @@
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\laser_turret\GVK_SalvagerTurret_BS3.mwm" />
             </BuildProgressModels>
             <InventorySize>
-                <X>3</X>
-                <Y>3</Y>
-                <Z>2</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <BlockPairName>GVK_SalvageBeamTurret</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <EmissiveColorPreset>GVK_SalvageBeamTurret</EmissiveColorPreset>
             <BuildTimeSeconds>40</BuildTimeSeconds>
             <DeformationRatio>0.2</DeformationRatio>
             <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
@@ -84,6 +84,7 @@
                     </Subpart>
                     <AimingTolerance>10</AimingTolerance>
                 </Turret>
+				<Debug>false</Debug>
                 <PickUpFloatings>true</PickUpFloatings>
                 <EffectShape>Line</EffectShape>
                 <WorkOrder>Backward</WorkOrder>
@@ -91,11 +92,11 @@
                 <WorkRate>1</WorkRate>
                 <Speed>1</Speed>
                 <UpdateInterval>20</UpdateInterval>
-                <AffectOwnGrid>true</AffectOwnGrid>
+                <AffectOwnGrid>false</AffectOwnGrid>
                 <CacheBlocks>true</CacheBlocks>
                 <Emitter>detector_shiptool_1</Emitter>
-                <Offset x="0" y="0" z="-5" />
-                <Radius>2.5</Radius>
+                <Offset x="0" y="0" z="0" />
+                <Radius>5</Radius>
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
@@ -104,7 +105,12 @@
                 <NonFriendlyMult>1</NonFriendlyMult>
                 <DamageCharacters>false</DamageCharacters>
                 <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
-                <Event Trigger="Firing">
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserTurretWeldEmit</Name>
+                        <Location>Emitter</Location>
+						<Dummy>detector_shiptool_1</Dummy>
+                    </ParticleEffect>
                     <Beam>
                         <Start>detector_shiptool_1</Start>
                         <EndLocation>Hit</EndLocation>
@@ -117,15 +123,13 @@
                             <W>1</W>
                         </Color>
                     </Beam>
-                </Event>
-                <Event Trigger="Hit">
+                    <Sound>
+                        <Name>ToolLrgWeldMetal</Name>
+                    </Sound>
                     <ParticleEffect>
                         <Name>LaserTurretWeldHit</Name>
                         <Location>Hit</Location>
                     </ParticleEffect>
-                    <Sound>
-                        <Name>ToolLrgWeldMetal</Name>
-                    </Sound>
                 </Event>
             </ToolValues>
             <ToolValues Type="Grind">
@@ -153,8 +157,8 @@
                 <Speed>1</Speed>
                 <UpdateInterval>20</UpdateInterval>
                 <Emitter>detector_shiptool_1</Emitter>
-                <Offset x="0" y="0" z="-5" />
-                <Radius>2.5</Radius>
+                <Offset x="0" y="0" z="0" />
+                <Radius>3</Radius>
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
@@ -164,7 +168,12 @@
                 <AffectOwnGrid>false</AffectOwnGrid>
                 <CacheBlocks>true</CacheBlocks>
                 <Action Type="Primary" SizeRatio="1" SpeedRatio="1" HarvestRatio="1" />
-                <Event Trigger="Firing">
+                <Event Trigger="RayHit">
+                    <ParticleEffect>
+                        <Name>LaserTurretGrindEmit</Name>
+                        <Location>Emitter</Location>
+						<Dummy>detector_shiptool_1</Dummy>
+                    </ParticleEffect>
                     <Beam>
                         <Start>detector_shiptool_1</Start>
                         <EndLocation>Hit</EndLocation>
@@ -177,8 +186,6 @@
                             <W>1</W>
                         </Color>
                     </Beam>
-                </Event>
-                <Event Trigger="RayHit">
                     <ParticleEffect>
                         <Name>LaserTurretGrindHit</Name>
                         <Location>Hit</Location>
@@ -258,9 +265,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>1.7</X>
-                <Y>1.7</Y>
-                <Z>1.75</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Drill">
                 <EffectShape>Sphere</EffectShape>
@@ -366,9 +373,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>1.6</X>
-                <Y>1.6</Y>
-                <Z>1.6</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Drill">
                 <EffectShape>Sphere</EffectShape>
@@ -485,9 +492,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.005</PowerInput>
             <InventorySize>
-                <X>2.0</X>
-                <Y>2.0</Y>
-                <Z>2.0</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Drill">
                 <EffectShape>Sphere</EffectShape>
@@ -603,9 +610,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.85</X>
-                <Y>0.85</Y>
-                <Z>0.85</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Weld">
                 <EffectShape>Sphere</EffectShape>
@@ -696,9 +703,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.55</X>
-                <Y>0.55</Y>
-                <Z>0.55</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Weld">
                 <EffectShape>Sphere</EffectShape>
@@ -794,9 +801,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.85</X>
-                <Y>0.85</Y>
-                <Z>0.85</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Grind">
                 <EffectShape>Sphere</EffectShape>
@@ -901,9 +908,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.55</X>
-                <Y>0.55</Y>
-                <Z>0.55</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Grind">
                 <EffectShape>Sphere</EffectShape>
@@ -1020,9 +1027,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>1.7</X>
-                <Y>1.7</Y>
-                <Z>1.75</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Drill">
                 <EffectShape>Sphere</EffectShape>
@@ -1129,9 +1136,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>1.6</X>
-                <Y>1.6</Y>
-                <Z>1.6</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Drill">
                 <EffectShape>Sphere</EffectShape>
@@ -1243,9 +1250,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.85</X>
-                <Y>0.85</Y>
-                <Z>0.85</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Weld">
                 <EffectShape>Sphere</EffectShape>
@@ -1333,9 +1340,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.55</X>
-                <Y>0.55</Y>
-                <Z>0.55</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Weld">
                 <EffectShape>Sphere</EffectShape>
@@ -1433,9 +1440,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.85</X>
-                <Y>0.85</Y>
-                <Z>0.85</Z>
+                <X>2.5</X>
+                <Y>2.5</Y>
+                <Z>3.125</Z>
             </InventorySize>
             <ToolValues Type="Grind">
                 <EffectShape>Sphere</EffectShape>
@@ -1539,9 +1546,9 @@
             <ResourceSinkGroup>Defense</ResourceSinkGroup>
             <PowerInput>0.002</PowerInput>
             <InventorySize>
-                <X>0.55</X>
-                <Y>0.55</Y>
-                <Z>0.55</Z>
+                <X>1.5</X>
+                <Y>1.5</Y>
+                <Z>1.875</Z>
             </InventorySize>
             <ToolValues Type="Grind">
                 <EffectShape>Sphere</EffectShape>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <EmissiveColorStatePresets>
+        <EmissiveColorStatePreset>
+            <Id>
+                <TypeId>MyObjectBuilder_EmissiveColorStatePresetDefinition</TypeId>
+                <SubtypeId>GVK_SalvageBeamTurret</SubtypeId>
+            </Id>
+            <EmissiveStates>
+                <EmissiveState StateName="Damaged" EmissiveColorName="Black" DisplayColorName="Black" Emissivity="0" />
+                <EmissiveState StateName="Disabled" EmissiveColorName="Red" DisplayColorName="White" Emissivity="0.5" />
+                <EmissiveState StateName="Working" EmissiveColorName="White" DisplayColorName="White" Emissivity="1" />
+            </EmissiveStates>
+        </EmissiveColorStatePreset>
+    </EmissiveColorStatePresets>
+</Definitions>
