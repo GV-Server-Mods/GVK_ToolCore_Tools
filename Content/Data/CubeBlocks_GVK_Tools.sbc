@@ -10,19 +10,19 @@
         <!-- 1. SALVAGE BEAM TURRET                                              -->
         <!-- =================================================================== -->
         <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
-            <Id>
+                        <Id>
                 <TypeId>ConveyorSorter</TypeId>
                 <SubtypeId>GVK_LargeSalvageBeamTurret</SubtypeId>
             </Id>
             <DisplayName>Salvage Beam Turret</DisplayName>
-            <Icon>Textures\GUI\Icons\Cubes\LG_SimpleLaserMultitool_Turret.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\GVK_SalvagerTurret.dds</Icon>
             <Description>Heavy-duty Coalition directed-energy utility turret. Range: 150m (Weld), 100m (Grind).</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>true</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="1" y="2" z="1" />
-            <ModelOffset x="0" y="1.25" z="0" />
-            <Model>Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret.mwm</Model>
+            <Size x="1" y="3" z="1" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\laser_turret\GVK_SalvagerTurret.mwm</Model>
             <UseModelIntersection>true</UseModelIntersection>
             <Components>
                 <Component Subtype="SteelPlate" Count="180" />
@@ -37,11 +37,15 @@
             <CriticalComponent Subtype="PowerCell" Index="0" />
             <MountPoints>
                 <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+                <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
             </MountPoints>
             <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\laser_turret\LG_SimpleLaserMultitool_Turret_BS3.mwm" />
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\laser_turret\GVK_SalvagerTurret_BS1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\laser_turret\GVK_SalvagerTurret_BS2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\laser_turret\GVK_SalvagerTurret_BS3.mwm" />
             </BuildProgressModels>
             <InventorySize>
                 <X>3</X>
@@ -52,8 +56,8 @@
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <BuildTimeSeconds>40</BuildTimeSeconds>
-            <Center x="0" y="0" z="0" />
             <DeformationRatio>0.2</DeformationRatio>
             <DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
             <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -67,12 +71,12 @@
                 <Turret>
                     <TargetRadius>150</TargetRadius>
                     <Subpart>
-                        <Name>GatlingTurretBase1</Name>
+                        <Name>Azimuth</Name>
                         <RotationAxis>Up</RotationAxis>
                         <RotationSpeed>45</RotationSpeed>
                     </Subpart>
                     <Subpart>
-                        <Name>GatlingTurretBase2</Name>
+                        <Name>Elevation</Name>
                         <RotationAxis>Right</RotationAxis>
                         <RotationSpeed>30</RotationSpeed>
                         <MinRotation>-30</MinRotation>
@@ -90,7 +94,7 @@
                 <AffectOwnGrid>true</AffectOwnGrid>
                 <CacheBlocks>true</CacheBlocks>
                 <Emitter>detector_shiptool_1</Emitter>
-                <Offset x="0" y="0" z="0" />
+                <Offset x="0" y="0" z="-5" />
                 <Radius>2.5</Radius>
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>
@@ -128,12 +132,12 @@
                 <Turret>
                     <TargetRadius>150</TargetRadius>
                     <Subpart>
-                        <Name>GatlingTurretBase1</Name>
+                        <Name>Azimuth</Name>
                         <RotationAxis>Up</RotationAxis>
                         <RotationSpeed>45</RotationSpeed>
                     </Subpart>
                     <Subpart>
-                        <Name>GatlingTurretBase2</Name>
+                        <Name>Elevation</Name>
                         <RotationAxis>Right</RotationAxis>
                         <RotationSpeed>30</RotationSpeed>
                         <MinRotation>-30</MinRotation>
@@ -149,7 +153,7 @@
                 <Speed>1</Speed>
                 <UpdateInterval>20</UpdateInterval>
                 <Emitter>detector_shiptool_1</Emitter>
-                <Offset x="0" y="0" z="0" />
+                <Offset x="0" y="0" z="-5" />
                 <Radius>2.5</Radius>
                 <Length>150</Length>
                 <HarvestRatio>1</HarvestRatio>

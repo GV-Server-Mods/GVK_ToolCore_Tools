@@ -34,8 +34,8 @@ namespace GVK_ToolCore_Tools
         internal static readonly HashSet<GVK_SalvageTurretClearance> ActiveDrawTurrets = new HashSet<GVK_SalvageTurretClearance>();
         private static bool _terminalControlsInitialized = false;
 
-        private const int TotalCells = 537;
-        private const int MaxAllowedObstructedZone1 = 12; // 75% clear per layer in Zone 1 (Y=0..3: 2 blocks above turret)
+        private const int TotalCells = 536;
+        private const int MaxAllowedObstructedZone1 = 12; // 75% clear per layer in Zone 1 (Y=0..3: 1 block above turret)
         private const int MaxAllowedObstructedZone2 = 0;  // 100% clear in Zone 2 (Y=4..10: 7 layers of open sky)
 
         private IMyFunctionalBlock _sorter;
@@ -97,8 +97,8 @@ namespace GVK_ToolCore_Tools
         public IMyFunctionalBlock Sorter { get { return _sorter; } }
 
         /// <summary>
-        /// Precomputes the 537 relative block coordinates comprising the two stacked zones:
-        /// Zone 1 (Work Zone): Y=0 to Y=3 (194 cells, >= 75% clear per layer, extends 2 blocks above turret).
+        /// Precomputes the 536 relative block coordinates comprising the two stacked zones:
+        /// Zone 1 (Work Zone): Y=0 to Y=3 (193 cells, >= 75% clear per layer, extends 1 block above turret).
         /// Zone 2 (Sky Chimney): Y=4 to Y=10 (343 cells, 100% clear sky).
         /// </summary>
         private static Vector3I[] InitializeClearanceOffsets()
@@ -112,8 +112,8 @@ namespace GVK_ToolCore_Tools
                 {
                     for (int z = -3; z <= 3; z++)
                     {
-                        // Exclude the 2-block tall turret itself at (0, 0, 0) and (0, 1, 0)
-                        if ((y == 0 || y == 1) && x == 0 && z == 0)
+                        // Exclude the 3-block tall turret itself at (0, 0, 0), (0, 1, 0), and (0, 2, 0)
+                        if ((y == 0 || y == 1 || y == 2) && x == 0 && z == 0)
                             continue;
 
                         list.Add(new Vector3I(x, y, z));
@@ -311,7 +311,7 @@ namespace GVK_ToolCore_Tools
         }
 
         /// <summary>
-        /// Evaluates all 537 funnel cells against the grid, tracking clearance per layer.
+        /// Evaluates all 536 funnel cells against the grid, tracking clearance per layer.
         /// </summary>
         private void CheckClearance()
         {

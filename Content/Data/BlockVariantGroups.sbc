@@ -3,7 +3,7 @@
 	<BlockVariantGroups>
 		<BlockVariantGroup>
 			<Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="GVK_Tools_SalvageBeam"/>
-			<Icon>Textures\GUI\Icons\Cubes\LG_SimpleLaserMultitool_Turret.dds</Icon>
+			<Icon>Textures\GUI\Icons\Cubes\GVK_SalvagerTurret.dds</Icon>
 			<DisplayName>Salvage Beam Turret</DisplayName>
 			<Description>Heavy-duty Coalition directed-energy utility turret. Range: 150m (Weld), 100m (Grind).</Description>
 			<Blocks>
