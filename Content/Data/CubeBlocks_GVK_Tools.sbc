@@ -500,8 +500,8 @@
                 <EffectShape>Sphere</EffectShape>
                 <WorkOrder>Uniform</WorkOrder>
                 <WorkOrigin>Centre</WorkOrigin>
-                <Offset x="0" y="0" z="-4" />
-                <Radius>3.0</Radius>
+                <Offset x="0" y="0" z="-3" />
+                <Radius>4.0</Radius>
                 <Speed>1.5</Speed>
                 <HarvestRatio>1.25</HarvestRatio>
                 <DestroyVoxels>true</DestroyVoxels>
