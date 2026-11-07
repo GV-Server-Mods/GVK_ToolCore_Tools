@@ -16,12 +16,13 @@
             </Id>
             <DisplayName>Salvage Beam Turret</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\GVK_SalvagerTurret.dds</Icon>
-            <Description>Heavy-duty directed-energy utility turret. Range: 150m (Weld), 150m (Grind).</Description>
+            <Description>Heavy-duty directed-energy utility turret. Range: 250m (Weld), 250m (Grind).</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>true</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="1" y="3" z="1" />
-            <ModelOffset x="0" y="0" z="0" />
+            <!-- 4 tall so the block covers the antenna; the extra cell lifts the model half a cell, so offset it back down -->
+            <Size x="1" y="4" z="1" />
+            <ModelOffset x="0" y="-1.25" z="0" />
             <Model>Models\Cubes\Large\laser_turret\GVK_SalvagerTurret.mwm</Model>
             <UseModelIntersection>true</UseModelIntersection>
             <Components>
@@ -69,7 +70,7 @@
             <PowerInput>0.002</PowerInput>
             <ToolValues Type="Weld">
                 <Turret>
-                    <TargetRadius>150</TargetRadius>
+                    <TargetRadius>250</TargetRadius>
                     <Subpart>
                         <Name>Azimuth</Name>
                         <RotationAxis>Up</RotationAxis>
@@ -97,7 +98,7 @@
                 <Emitter>detector_shiptool_1</Emitter>
                 <Offset x="0" y="0" z="0" />
                 <Radius>5</Radius>
-                <Length>150</Length>
+                <Length>250</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
                 <!-- ToolCore requires non-zero IdlePower; if omitted or 0, ToolCore evaluates required==0 as powered even on dead unpowered grids -->
@@ -134,7 +135,7 @@
             </ToolValues>
             <ToolValues Type="Grind">
                 <Turret>
-                    <TargetRadius>150</TargetRadius>
+                    <TargetRadius>250</TargetRadius>
                     <Subpart>
                         <Name>Azimuth</Name>
                         <RotationAxis>Up</RotationAxis>
@@ -159,7 +160,7 @@
                 <Emitter>detector_shiptool_1</Emitter>
                 <Offset x="0" y="0" z="0" />
                 <Radius>3</Radius>
-                <Length>150</Length>
+                <Length>250</Length>
                 <HarvestRatio>1</HarvestRatio>
                 <ActivePower>0.75</ActivePower>
                 <IdlePower>0.002</IdlePower>

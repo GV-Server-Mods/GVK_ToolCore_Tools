@@ -45,11 +45,11 @@ The ship tools of the **GV: Deserts of Kharak (GVK)** server, built on ToolCore:
 | The mod storage key that keeps the turret's re-enable flag through a restart | `Content/Data/GVK_EntityComponents.sbc` |
 
 ## The salvage turret in brief
-The turret checks two stacked zones around it: a 7x7x4 workspace where at most a quarter of the cells (48 of 193) may be blocked, and a 7x7x7 sky zone above it that must stay completely clear. Blocks on its own grid, its rotor, hinge and piston subgrids, and terrain all count. A violation shuts it down, shows the blocked-cell counts in its control panel, and can draw a wireframe of the legal space; it switches back on once cleared, even after a restart. NPC grids are exempt. The whole design, including the ToolCore workarounds and why the beam is a line and not a sphere, is in [Docs/design/salvage-beam-turret.md](Docs/design/salvage-beam-turret.md).
+The turret checks 8 sight lanes (front, back, sides and diagonals) out to the edge of a 5x5 area around its moving parts, as physics rays at each of its 3 layers above the base; at least 5 lanes must be fully clear, and doors in a lane count as closed. The 5x5x5 sky above that must stay completely clear. The base layer is not checked. Blocks count on its own grid, its rotor, hinge and piston subgrids, and any grid of the owner or the owner's faction; other factions' grids, NPC grids, terrain and people don't. A violation shuts it down, shows the blocked lanes and sky cells in its control panel, and can draw a wireframe of the legal space; it switches back on once cleared, even after a restart. NPC-owned turrets are exempt. The whole design, including the ToolCore workarounds and why the beam is a line and not a sphere, is in [Docs/design/salvage-beam-turret.md](Docs/design/salvage-beam-turret.md).
 
 ## For other modders
 Worth reading in the design doc:
-- **Rules enforced by the block itself**: event-driven checks plus a 10-second heartbeat, counting the block's own grid, its mechanical subgrids and terrain (one voxel read per check) with no allocations.
+- **Rules enforced by the block itself**: event-driven checks (block changes, merges, nearby grids moving) plus a 60-second safety check, ignoring other factions' and NPC grids, with no allocations.
 - **Why a line beam beats a working sphere** for salvaging: it can't reach through armor.
 - **Two ToolCore quirks** and their workarounds (the missing beam state, and the model offset after resizing a block).
 

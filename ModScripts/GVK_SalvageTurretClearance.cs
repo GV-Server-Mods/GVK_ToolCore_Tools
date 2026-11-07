@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
@@ -9,11 +10,11 @@ using Sandbox.ModAPI.Interfaces;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 
 namespace GVK_ToolCore_Tools
@@ -21,11 +22,17 @@ namespace GVK_ToolCore_Tools
     /// <summary>
     /// Enforces the clearance rule for the GVK Large Salvage Beam Turret.
     /// Prevents players from sinking long-range beam turrets into armored chimneys, silos,
-    /// or underground bunkers by requiring an expanding open-air funnel above the mounting footprint.
+    /// or underground bunkers by requiring open sight lines around the turret and open sky above it.
     /// Features:
-    /// - Two zones: a 7x7x4 workspace (at most 25% of its cells blocked) and a 7x7x7 sky (no cells blocked).
-    /// - A cell is blocked by the turret's own grid, its rotor/hinge/piston subgrids, or terrain.
-    /// - Re-checks on own-grid block changes and every ~10 s (subgrids and terrain raise no events).
+    /// - 8 sight lanes (front, back, sides, diagonals) out to the edge of a 5x5 area, each a physics ray
+    ///   at every layer of the turret above its base. At least 5 lanes must be open.
+    /// - A 5x5x5 sky above that, checked cell by cell, with no cells blocked.
+    /// - The base layer (the turret's bottom cell) is not checked. Offsets are measured from the bottom cell.
+    /// - Blocks count on the turret's grid, its rotor/hinge/piston subgrids, and any other grid owned by nobody,
+    ///   an NPC, the turret's owner or the owner's faction. Other factions' grids, terrain and people do not.
+    /// - Re-checks when a block is added to or removed from the turret's grid, when the turret changes grid
+    ///   (merge), when a nearby counted grid moves or changes, when the owner changes, and every ~60 s as a safety net.
+    /// - Doors in the lanes count as closed: opening or shutting one raises no event.
     /// - Skips projected ghost blocks and NPC-owned turrets.
     /// - Auto-re-enables once clear; the flag survives a save and reload.
     /// - Holographic wireframe toggle in the Control Panel.
@@ -33,77 +40,132 @@ namespace GVK_ToolCore_Tools
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_ConveyorSorter), false, "GVK_LargeSalvageBeamTurret")]
     public class GVK_SalvageTurretClearance : MyGameLogicComponent
     {
-        private static readonly Vector3I[] ClearanceOffsets = InitializeClearanceOffsets();
         internal static readonly HashSet<GVK_SalvageTurretClearance> ActiveDrawTurrets = new HashSet<GVK_SalvageTurretClearance>();
         private static bool _terminalControlsInitialized = false;
 
-        private const int TotalCells = 536;
-        private const int WorkspaceCells = 193;            // Zone 1: 7x7x4 minus the turret's own 3 cells
-        private const int MaxAllowedObstructedZone1 = 48;  // 75% of the whole workspace must stay clear (floor of 25% of 193)
-        private const int MaxAllowedObstructedZone2 = 0;   // 100% clear in Zone 2 (Y=4..10: 7 layers of open sky)
+        // Zone layout, built once from the block's height in cells (Size Y in the SBC) by BuildLayout().
+        // Offsets are measured from the turret's bottom cell (its base, Y=0, which is not checked), X and Z
+        // from -2 to 2, -Z being the turret's front. The sight lanes run at the 3 layers above the base; the
+        // sky is the 5 layers above them (or right above a turret taller than 4).
+        private const int HalfWidth = 2;                   // 5x5 zones
+        private const int Width = 2 * HalfWidth + 1;
+        private const int WorkspaceBottom = 1;             // the layer above the base
+        private const int WorkspaceLayers = 3;
+        private const int SkyLayers = 5;
+        private const int MaxAllowedObstructedZone2 = 0;   // 100% clear sky
+        private static int _turretHeight;
+        private static int _skyBottom;                     // 4, or the top of a taller turret
+        private static int _skyTop;                        // _skyBottom + 4
+        private static Vector3I[] ClearanceOffsets;        // the sky cells
+        private static int _skyCells;                      // 5x5x5 = 125
 
-        // Occupancy grid over the 7 x 11 x 7 zone, indexed by CellIndex(offset).
-        private const int ZoneCellCount = 7 * 11 * 7;
-
-        // Terrain: a cell counts as blocked when at least half of its 8 sample points are solid.
-        // Read at voxel LOD 1 (2 m voxels) to keep the read to a few thousand voxels per check.
-        private const int TerrainLod = 1;
-        private const int TerrainSolidSamples = 4;
-        private const byte VoxelSolidContent = 127;
+        // Sight lanes, clockwise from the front as (x, z) steps. Each casts one ray per layer (two for a
+        // diagonal, see CastLane) from inside the turret's own cell to just inside the 5x5 edge.
+        internal const int LaneCount = 8;
+        private const int MinOpenLanes = 5;
+        internal static readonly int[] LaneX = { 0, 1, 1, 1, 0, -1, -1, -1 };
+        internal static readonly int[] LaneZ = { -1, -1, 0, 1, 1, 1, 0, -1 };
+        private static readonly string[] LaneNames = { "front", "front-right", "right", "back-right", "back", "back-left", "left", "front-left" };
+        private const double RayStart = 0.3;               // cells from the turret's axis: inside its own cell
+        internal const double RayEnd = HalfWidth + 0.45;   // short of the 5x5 edge, so blocks outside it never count
+        private const double DiagonalShift = 0.08;         // see CastLane
+        private const int RaycastLayer = 24;               // MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer
+        internal static int LaneHeights;                   // the turret's layers above its base: 3
 
         // Mod storage key for the auto-re-enable flag. Registered in Data/GVK_EntityComponents.sbc,
         // otherwise the game drops it on save.
         private static readonly Guid ReEnableStorageGuid = new Guid("AB503EF1-F20D-4F3A-A7EE-E7C67638EC0A");
 
         // Shared scratch buffers: every clearance check runs on the game thread, one at a time.
-        private static MyStorageData _voxelData;
-        private static readonly List<MyVoxelBase> _voxelMaps = new List<MyVoxelBase>();
-        private static readonly List<MyVoxelBase> _voxelRoots = new List<MyVoxelBase>();
         private static readonly List<IMyCubeGrid> _groupGrids = new List<IMyCubeGrid>();
+        private static readonly List<MyEntity> _nearEntities = new List<MyEntity>();
+        private static readonly List<IMyCubeGrid> _countedGrids = new List<IMyCubeGrid>();   // see CollectCountedGrids
         private static readonly List<IMySlimBlock> _subgridBlocks = new List<IMySlimBlock>();
-        private static readonly bool[] _occupied = new bool[ZoneCellCount];
-        private static readonly bool[] _terrainCell = new bool[ZoneCellCount];
+        private static readonly List<IHitInfo> _hits = new List<IHitInfo>();
+
+        // Who built each unowned grid seen near a turret (see GridBuilder), by grid entity id.
+        private const int MaxCachedBuilders = 256;
+        private static readonly Dictionary<long, long> _gridBuilders = new Dictionary<long, long>();
+        private static readonly Func<IMySlimBlock, bool> _sampleBuilder = SampleBuilder;
+        private static long _sampledBuilder;
+        private static bool _builderSampled;
+        private static bool[] _occupied;                   // Sky occupancy, indexed by CellIndex(offset)
+        private static bool[] _doorCells;                  // Doors in the lane layers, indexed by DoorIndex(x, layer, z)
+        private static bool _anyDoor;
+
+        // Watch tolerances: Havok jitters subgrids a little even when nothing moves them.
+        private const double WatchMoveSq = 0.1 * 0.1;      // metres
+        private const double WatchTurnSq = 0.01 * 0.01;    // about 0.6 degrees
+
+        // Timing log for performance tests (2026-11-07), off in releases. Set to true in a local build to
+        // write a line to the game log every TimingLogEvery checks.
+        private static readonly bool TimingLog = false;
+        private const int TimingLogEvery = 20;
+        private static readonly System.Diagnostics.Stopwatch _timer = new System.Diagnostics.Stopwatch();
+        private static int _timedChecks;
+        private static long _timedTicks;
+        private static long _timedMaxTicks;
+        private static int _timedRays;
 
         private IMyFunctionalBlock _sorter;
         private IMyTerminalBlock _terminalBlock;
         private IMyCubeGrid _trackedGrid;
 
         private bool _isObstructed;
-        private bool _zone1Obstructed;
-        private bool _zone2Obstructed;
+        private bool _lanesObstructed;
+        private bool _skyObstructed;
         private bool _wasEnabledBeforeObstruction;
-        private bool _isDirty = true;
         private bool _initialized;
         private bool _showClearanceWireframe;
 
         private string _violationReason = "";
         private int _refreshBeamTicks;
 
-        // Heartbeat: forces a full re-evaluation every ~10 seconds regardless of events.
-        // Catches grid merges and any other silent grid mutations that bypass
-        // OnBlockAdded/OnBlockRemoved events. (Audit #2)
-        private const int HeartbeatInterval = 6; // 6 × Update100 (~100 ticks each) ≈ 600 ticks ≈ 10 sec
+        // Safety re-check every ~60 s. Changes are normally caught sooner: block events on the turret's grid,
+        // the grid-change and subgrid watch in UpdateBeforeSimulation100, and switching the turret on.
+        private const int HeartbeatInterval = 36; // 36 x Update100 (~100 ticks each) = 3600 ticks = 60 s
         private int _heartbeatCounter;
+
+        // Checks still owed, run one per Update100. A block event owes 2: a new or removed block's
+        // collision can lag behind the event, so the second check confirms the first.
+        private int _pendingChecks;
+
+        // What the last check saw, for the watch: owner, and the counted grids reaching into the area.
+        private long _checkedOwnerId;
+        private NearGridState _watch;
+
+        private struct NearGridState
+        {
+            public int Near;       // counted grids, other than the turret's own, whose bounds reach into the area
+            public int Blocks;     // their block count
+            public Vector3D Pos;   // sums of their position, forward and up, in the turret grid's frame
+            public Vector3D Fwd;
+            public Vector3D Up;
+        }
 
         // Reentrancy guard: prevents infinite EnabledChanged → CheckClearance → Enabled = false → EnabledChanged loop
         // if Keen ever changes event dispatch timing. (Audit #4)
         private bool _processingEnabledChange;
 
-        // Cached block orientation vectors — these never change once the block is placed.
-        // Avoids recomputing GetIntVector/GetFlippedDirection on every CheckClearance call. (Audit #10)
+        // Cached block orientation vectors in the turret's grid, set by BindGrid. They change only when a
+        // merge moves the turret onto another grid. (Audit #10)
         private Vector3I _cachedRightVec;
         private Vector3I _cachedUpVec;
         private Vector3I _cachedForwardVec;
 
-        private int _workspaceBlocked;
+        // The turret's bottom cell. The block's Position is its centre cell (Size-1)/2, not its bottom.
+        private Vector3I _basePos;
+        private int _centreY;
+
+        private int _openLanes = LaneCount;
+        private int _blockedLaneMask;                      // one bit per lane
+        private bool[] _rayBlocked;                        // per layer of each lane: lane * LaneHeights + layer
         private int _skyBlocked;
-        private int _terrainBlocked;
         private bool _npcExempt;
 
         // Values last shown in the Control Panel, so it refreshes only when they change.
-        private int _shownWorkspaceBlocked = -1;
+        private int _shownBlockedLaneMask = -1;
         private int _shownSkyBlocked = -1;
-        private int _shownTerrainBlocked = -1;
         private bool _shownNpcExempt;
 
         // World-space step for one cell along the turret's right, up and back axes, plus the
@@ -136,36 +198,46 @@ namespace GVK_ToolCore_Tools
         }
 
         public bool IsObstructed { get { return _isObstructed; } }
-        public bool Zone1Obstructed { get { return _zone1Obstructed; } }
-        public bool Zone2Obstructed { get { return _zone2Obstructed; } }
+        public bool SkyObstructed { get { return _skyObstructed; } }
         public IMyFunctionalBlock Sorter { get { return _sorter; } }
+        public Vector3I BasePos { get { return _basePos; } }
+        internal static int WorkspaceBottomLayer { get { return WorkspaceBottom; } }
+        internal static int SkyBottom { get { return _skyBottom; } }
+        internal static int SkyTop { get { return _skyTop; } }
 
         /// <summary>
-        /// Precomputes the 536 relative block coordinates comprising the two stacked zones:
-        /// Zone 1 (Work Zone): Y=0 to Y=3 (193 cells, >= 75% clear over the whole zone, extends 1 block above turret).
-        /// Zone 2 (Sky Chimney): Y=4 to Y=10 (343 cells, 100% clear sky).
+        /// Whether the ray of a lane at one layer above the base (0 = the lowest) was blocked in the last check.
         /// </summary>
-        private static Vector3I[] InitializeClearanceOffsets()
+        internal bool RayBlockedAt(int lane, int layer)
         {
-            var list = new List<Vector3I>(TotalCells);
+            return _rayBlocked != null && _rayBlocked[lane * LaneHeights + layer];
+        }
 
-            // Levels 0 to 10 (11 layers total)
-            for (int y = 0; y <= 10; y++)
-            {
-                for (int x = -3; x <= 3; x++)
-                {
-                    for (int z = -3; z <= 3; z++)
-                    {
-                        // Exclude the 3-block tall turret itself at (0, 0, 0), (0, 1, 0), and (0, 2, 0)
-                        if ((y == 0 || y == 1 || y == 2) && x == 0 && z == 0)
-                            continue;
+        /// <summary>
+        /// Precomputes the layout for a turret H cells tall (offsets from its bottom cell): the sight lanes at
+        /// Y=1..3 (above the base), and the sky cells, 5x5, the 5 layers above them (or above a taller turret).
+        /// Runs once; the turret has one block definition.
+        /// </summary>
+        private static void BuildLayout(int height)
+        {
+            if (ClearanceOffsets != null && _turretHeight == height)
+                return;
 
+            _turretHeight = height;
+            _skyBottom = Math.Max(WorkspaceBottom + WorkspaceLayers, height);
+            _skyTop = _skyBottom + SkyLayers - 1;
+            LaneHeights = _skyBottom - WorkspaceBottom;
+
+            var list = new List<Vector3I>();
+            for (int y = _skyBottom; y <= _skyTop; y++)
+                for (int x = -HalfWidth; x <= HalfWidth; x++)
+                    for (int z = -HalfWidth; z <= HalfWidth; z++)
                         list.Add(new Vector3I(x, y, z));
-                    }
-                }
-            }
 
-            return list.ToArray();
+            ClearanceOffsets = list.ToArray();
+            _occupied = new bool[Width * SkyLayers * Width];
+            _doorCells = new bool[Width * LaneHeights * Width];
+            _skyCells = list.Count;
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -188,10 +260,6 @@ namespace GVK_ToolCore_Tools
             if (IsProjected(_sorter))
                 return;
 
-            _trackedGrid = _sorter.CubeGrid;
-            _trackedGrid.OnBlockAdded += OnGridModified;
-            _trackedGrid.OnBlockRemoved += OnGridModified;
-            _trackedGrid.OnGridSplit += OnGridSplit;
             _sorter.EnabledChanged += OnEnabledChanged;
 
             if (_terminalBlock != null)
@@ -199,13 +267,14 @@ namespace GVK_ToolCore_Tools
                 _terminalBlock.AppendingCustomInfo += AppendCustomInfo;
             }
 
-            // Cache block orientation vectors — these are fixed once the block is placed
-            // and never change, so computing them once avoids repeated lookups in CheckClearance. (Audit #10)
-            var orientation = _sorter.Orientation;
-            var rightDir = Base6Directions.GetFlippedDirection(orientation.Left);
-            _cachedRightVec = Base6Directions.GetIntVector(rightDir);
-            _cachedUpVec = Base6Directions.GetIntVector(orientation.Up);
-            _cachedForwardVec = Base6Directions.GetIntVector(orientation.Forward);
+            // Height and centre cell come from the block definition, so a taller block in the SBC
+            // resizes the zones with it.
+            var def = MyDefinitionManager.Static.GetCubeBlockDefinition(_sorter.BlockDefinition);
+            int height = def != null ? def.Size.Y : 3;
+            _centreY = def != null ? def.Center.Y : 1;
+            BuildLayout(height);
+            _rayBlocked = new bool[LaneCount * LaneHeights];
+            BindGrid(_sorter.CubeGrid);
 
             CreateTerminalControls();
 
@@ -218,20 +287,48 @@ namespace GVK_ToolCore_Tools
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
             _initialized = true;
-            _isDirty = true;
 
-            // Immediate initial clearance check upon spawn / load / unhangar
+            // Immediate initial clearance check upon spawn / load / unhangar, confirmed once the
+            // grid's physics has settled.
             CheckClearance();
+            _pendingChecks = 1;
+        }
+
+        /// <summary>
+        /// Hooks the turret's current grid and caches its orientation and bottom cell in that grid.
+        /// Runs at start, after a split, and after a merge, which moves the turret onto the other grid
+        /// with a new position and orientation ([HARD] MyCubeGrid.MoveBlocksAndClose).
+        /// </summary>
+        private void BindGrid(IMyCubeGrid grid)
+        {
+            if (_trackedGrid != null)
+            {
+                _trackedGrid.OnBlockAdded -= OnGridModified;
+                _trackedGrid.OnBlockRemoved -= OnGridModified;
+                _trackedGrid.OnGridSplit -= OnGridSplit;
+            }
+
+            _trackedGrid = grid;
+            _trackedGrid.OnBlockAdded += OnGridModified;
+            _trackedGrid.OnBlockRemoved += OnGridModified;
+            _trackedGrid.OnGridSplit += OnGridSplit;
+
+            var orientation = _sorter.Orientation;
+            _cachedRightVec = Base6Directions.GetIntVector(Base6Directions.GetFlippedDirection(orientation.Left));
+            _cachedUpVec = Base6Directions.GetIntVector(orientation.Up);
+            _cachedForwardVec = Base6Directions.GetIntVector(orientation.Forward);
+            _basePos = _sorter.Position - _cachedUpVec * _centreY;
+            _pendingChecks = 2;
         }
 
         private void OnGridModified(IMySlimBlock slim)
         {
-            _isDirty = true;
+            _pendingChecks = 2;
         }
 
         private void OnGridSplit(IMyCubeGrid grid1, IMyCubeGrid grid2)
         {
-            _isDirty = true;
+            _pendingChecks = 2;
 
             // After a split, _trackedGrid may point at the orphaned half that no longer
             // contains the turret. Rebind events to the turret's actual grid. (Audit #15)
@@ -240,16 +337,7 @@ namespace GVK_ToolCore_Tools
 
             var currentGrid = _sorter.CubeGrid;
             if (currentGrid != null && currentGrid != _trackedGrid)
-            {
-                _trackedGrid.OnBlockAdded -= OnGridModified;
-                _trackedGrid.OnBlockRemoved -= OnGridModified;
-                _trackedGrid.OnGridSplit -= OnGridSplit;
-
-                _trackedGrid = currentGrid;
-                _trackedGrid.OnBlockAdded += OnGridModified;
-                _trackedGrid.OnBlockRemoved += OnGridModified;
-                _trackedGrid.OnGridSplit += OnGridSplit;
-            }
+                BindGrid(currentGrid);
         }
 
         private void OnEnabledChanged(IMyTerminalBlock block)
@@ -343,27 +431,169 @@ namespace GVK_ToolCore_Tools
             // UpdateOnceBeforeFrame() without setting _initialized = true, so they
             // can never reach this point. (Audit #9: dead code removal)
 
-            // Heartbeat: periodically force a full re-evaluation regardless of dirty flag.
-            // Catches grid merges and any other silent mutations that bypass
-            // OnBlockAdded/OnBlockRemoved events. (Audit #2)
+            // A merge moves the turret onto the other grid and closes the old one, whose events then stop.
+            var grid = _sorter.CubeGrid;
+            if (grid != _trackedGrid)
+                BindGrid(grid);
+
             _heartbeatCounter++;
             if (_heartbeatCounter >= HeartbeatInterval)
             {
                 _heartbeatCounter = 0;
-                _isDirty = true;
+                if (_pendingChecks == 0)
+                    _pendingChecks = 1;
+            }
+            else if (_pendingChecks == 0 && (_sorter.OwnerId != _checkedOwnerId || (!_npcExempt && NearGridsChanged(grid))))
+            {
+                _pendingChecks = 1;
             }
 
-            // Event-Driven: Only evaluate if the grid has been modified (or heartbeat fired)
-            if (!_isDirty)
+            if (_pendingChecks == 0)
                 return;
 
-            _isDirty = false;
+            _pendingChecks--;
             CheckClearance();
         }
 
         /// <summary>
-        /// Evaluates all 536 zone cells against the turret's grid, its mechanical subgrids and terrain,
-        /// then applies the whole-workspace and sky limits.
+        /// Whether the counted grids reaching into the area moved or turned relative to the turret's grid,
+        /// gained or lost blocks, came or went since the last check. Subgrids and separate grids raise no
+        /// events on the turret's grid, so this is how a hinged roof, a piston wall or a ship parked over the
+        /// turret gets noticed. Costs a group lookup and a bounds query when nothing is near.
+        /// </summary>
+        private bool NearGridsChanged(IMyCubeGrid grid)
+        {
+            ComputeWorldAxes(grid);
+            CollectCountedGrids(grid);
+
+            bool changed;
+            if (_countedGrids.Count == 0 && _watch.Near == 0)
+            {
+                changed = false;
+            }
+            else
+            {
+                var now = ReadNearState(grid);
+                changed = now.Near != _watch.Near || now.Blocks != _watch.Blocks
+                    || Vector3D.DistanceSquared(now.Pos, _watch.Pos) > WatchMoveSq
+                    || Vector3D.DistanceSquared(now.Fwd, _watch.Fwd) > WatchTurnSq
+                    || Vector3D.DistanceSquared(now.Up, _watch.Up) > WatchTurnSq;
+            }
+
+            _countedGrids.Clear();
+            return changed;
+        }
+
+        /// <summary>
+        /// Fills _countedGrids with the grids, other than the turret's own, whose bounds reach into the area
+        /// (_zoneBox) and whose blocks count: the turret's rotor/hinge/piston subgrids, and separate grids that
+        /// pass CountsSeparateGrid. Projections (no physics) never count.
+        /// </summary>
+        private void CollectCountedGrids(IMyCubeGrid grid)
+        {
+            _countedGrids.Clear();
+            _groupGrids.Clear();
+            MyAPIGateway.GridGroups.GetGroup(grid, GridLinkTypeEnum.Mechanical, _groupGrids);
+
+            _nearEntities.Clear();
+            MyGamePruningStructure.GetTopMostEntitiesInBox(ref _zoneBox, _nearEntities);
+
+            long owner = _sorter.OwnerId;
+            IMyFaction faction = owner != 0 ? MyAPIGateway.Session.Factions.TryGetPlayerFaction(owner) : null;
+
+            for (int i = 0; i < _nearEntities.Count; i++)
+            {
+                var other = _nearEntities[i] as IMyCubeGrid;
+                if (other == null || other == grid || other.MarkedForClose || other.Physics == null)
+                    continue;
+
+                if (_groupGrids.Contains(other) || CountsSeparateGrid(other, owner, faction))
+                    _countedGrids.Add(other);
+            }
+
+            _nearEntities.Clear();
+            _groupGrids.Clear();
+        }
+
+        /// <summary>
+        /// Whether a separate grid counts (owner, 2026-11-07), judged by its owner (first big owner) or, when
+        /// it has none, by who built it (GridBuilder). Only the turret's owner and members of the owner's
+        /// faction count. Other factions' grids never count, so nobody outside the faction can switch the
+        /// turret off by parking next to it, and NPC grids and grids built by nobody (ships, bases, wrecks,
+        /// debris) never count either.
+        /// </summary>
+        private static bool CountsSeparateGrid(IMyCubeGrid other, long owner, IMyFaction faction)
+        {
+            var owners = other.BigOwners;
+            long id = owners != null && owners.Count > 0 ? owners[0] : GridBuilder(other);
+            if (id == 0)
+                return false;
+            if (id == owner)
+                return true;
+
+            return faction != null && MyAPIGateway.Session.Factions.TryGetPlayerFaction(id) == faction;
+        }
+
+        /// <summary>
+        /// Who built an unowned grid (an armor-only shell, debris or a wreck), read from the first block the grid
+        /// lists (BuiltBy; 0 for nobody). Reading it walks the grid's blocks, so it is cached per grid. A grid
+        /// built by several players is judged by that first block [SOFT].
+        /// </summary>
+        private static long GridBuilder(IMyCubeGrid grid)
+        {
+            long builder;
+            if (_gridBuilders.TryGetValue(grid.EntityId, out builder))
+                return builder;
+
+            _builderSampled = false;
+            _sampledBuilder = 0;
+            grid.GetBlocks(_subgridBlocks, _sampleBuilder);   // adds nothing, see SampleBuilder
+            if (_gridBuilders.Count >= MaxCachedBuilders)
+                _gridBuilders.Clear();
+            _gridBuilders[grid.EntityId] = _sampledBuilder;
+            return _sampledBuilder;
+        }
+
+        private static bool SampleBuilder(IMySlimBlock block)
+        {
+            if (!_builderSampled)
+            {
+                _sampledBuilder = block.BuiltBy;
+                _builderSampled = true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Sums up the grids in _countedGrids: how many, their blocks, and their position and facing in the
+        /// turret grid's frame.
+        /// </summary>
+        private NearGridState ReadNearState(IMyCubeGrid grid)
+        {
+            var state = new NearGridState();
+            MatrixD gm = grid.WorldMatrix;
+
+            for (int g = 0; g < _countedGrids.Count; g++)
+            {
+                var other = _countedGrids[g];
+                state.Near++;
+                var cube = other as Sandbox.Game.Entities.MyCubeGrid;
+                if (cube != null)
+                    state.Blocks += cube.BlocksCount;
+
+                MatrixD sm = other.WorldMatrix;
+                Vector3D d = sm.Translation - gm.Translation;
+                state.Pos += new Vector3D(d.Dot(gm.Right), d.Dot(gm.Up), d.Dot(gm.Backward));
+                state.Fwd += new Vector3D(sm.Forward.Dot(gm.Right), sm.Forward.Dot(gm.Up), sm.Forward.Dot(gm.Backward));
+                state.Up += new Vector3D(sm.Up.Dot(gm.Right), sm.Up.Dot(gm.Up), sm.Up.Dot(gm.Backward));
+            }
+
+            return state;
+        }
+
+        /// <summary>
+        /// Casts the sight lanes and checks the sky cells against the turret's grid and the other counted
+        /// grids near it, then applies the lane and sky limits.
         /// </summary>
         private void CheckClearance()
         {
@@ -371,67 +601,96 @@ namespace GVK_ToolCore_Tools
             if (grid == null)
                 return;
 
-            _workspaceBlocked = 0;
+            // Switching the turret on right after a merge can get here before UpdateBeforeSimulation100 does.
+            if (grid != _trackedGrid)
+                BindGrid(grid);
+
+            if (TimingLog)
+                _timer.Restart();
+
+            // A dedicated server needs only the verdict: the Control Panel text and the wireframe are worked
+            // out by each client itself. So it stops casting once the result is settled; the result is the same.
+            bool detail = !MyAPIGateway.Utilities.IsDedicated;
+
+            _openLanes = LaneCount;
+            _blockedLaneMask = 0;
             _skyBlocked = 0;
-            _terrainBlocked = 0;
-            _zone1Obstructed = false;
-            _zone2Obstructed = false;
+            _lanesObstructed = false;
+            _skyObstructed = false;
+            Array.Clear(_rayBlocked, 0, _rayBlocked.Length);
 
             // NPC turrets (owner has no Steam ID) skip the rule. "Nobody" ownership does not.
             long ownerId = _sorter.OwnerId;
+            _checkedOwnerId = ownerId;
             _npcExempt = ownerId != 0 && MyAPIGateway.Players.TryGetSteamId(ownerId) == 0;
 
             if (!_npcExempt)
             {
-                Array.Clear(_occupied, 0, ZoneCellCount);
-                Array.Clear(_terrainCell, 0, ZoneCellCount);
+                Array.Clear(_occupied, 0, _occupied.Length);
+                Array.Clear(_doorCells, 0, _doorCells.Length);
+                _anyDoor = false;
                 ComputeWorldAxes(grid);
 
+                CollectCountedGrids(grid);
+                _watch = ReadNearState(grid);
+
                 MarkOwnGrid(grid);
-                MarkMechanicalSubgrids(grid);
-                MarkTerrain();
+                for (int g = 0; g < _countedGrids.Count; g++)
+                    MarkGrid(_countedGrids[g]);
 
                 for (int i = 0; i < ClearanceOffsets.Length; i++)
                 {
-                    int idx = CellIndex(ClearanceOffsets[i]);
-                    if (!_occupied[idx])
-                        continue;
-
-                    if (ClearanceOffsets[i].Y <= 3)
-                        _workspaceBlocked++;
-                    else
+                    if (_occupied[CellIndex(ClearanceOffsets[i])])
                         _skyBlocked++;
-
-                    if (_terrainCell[idx])
-                        _terrainBlocked++;
                 }
 
-                _zone1Obstructed = _workspaceBlocked > MaxAllowedObstructedZone1;
-                _zone2Obstructed = _skyBlocked > MaxAllowedObstructedZone2;
+                _skyObstructed = _skyBlocked > MaxAllowedObstructedZone2;
+
+                // Without detail: no lanes once the sky fails, and stop once 5 lanes are open or 4 blocked.
+                if (detail || !_skyObstructed)
+                {
+                    int open = 0;
+                    int blocked = 0;
+                    for (int lane = 0; lane < LaneCount; lane++)
+                    {
+                        if (!detail && (open >= MinOpenLanes || blocked > LaneCount - MinOpenLanes))
+                            break;
+
+                        if (CastLane(lane, detail))
+                        {
+                            open++;
+                        }
+                        else
+                        {
+                            blocked++;
+                            _blockedLaneMask |= 1 << lane;
+                        }
+                    }
+
+                    _openLanes = LaneCount - blocked;
+                    _lanesObstructed = blocked > LaneCount - MinOpenLanes;
+                }
+
+                _hits.Clear();
+                _subgridBlocks.Clear();
+                _countedGrids.Clear();
             }
 
-            bool obstructed = _zone1Obstructed || _zone2Obstructed;
+            bool obstructed = _lanesObstructed || _skyObstructed;
             string reason = "";
 
-            if (_zone1Obstructed && _zone2Obstructed)
-            {
-                reason = "Workspace and Sky are both obstructed";
-            }
-            else if (_zone1Obstructed)
-            {
-                reason = string.Format("Workspace obstructed (more than {0} of {1} cells blocked)", MaxAllowedObstructedZone1, WorkspaceCells);
-            }
-            else if (_zone2Obstructed)
-            {
-                reason = "Sky obstructed (overhead structure, roof or terrain detected)";
-            }
+            if (_lanesObstructed && _skyObstructed)
+                reason = "Sight lanes and Sky are both obstructed";
+            else if (_lanesObstructed)
+                reason = string.Format("Sight lanes blocked (only {0} of {1} open, min {2})", _openLanes, LaneCount, MinOpenLanes);
+            else if (_skyObstructed)
+                reason = "Sky obstructed (overhead structure or roof detected)";
 
-            // Refresh the Control Panel whenever the counts it shows change.
-            bool stateChanged = _workspaceBlocked != _shownWorkspaceBlocked || _skyBlocked != _shownSkyBlocked
-                || _terrainBlocked != _shownTerrainBlocked || _npcExempt != _shownNpcExempt;
-            _shownWorkspaceBlocked = _workspaceBlocked;
+            // Refresh the Control Panel whenever what it shows changes.
+            bool stateChanged = _blockedLaneMask != _shownBlockedLaneMask || _skyBlocked != _shownSkyBlocked
+                || _npcExempt != _shownNpcExempt;
+            _shownBlockedLaneMask = _blockedLaneMask;
             _shownSkyBlocked = _skyBlocked;
-            _shownTerrainBlocked = _terrainBlocked;
             _shownNpcExempt = _npcExempt;
 
             if (obstructed)
@@ -449,7 +708,7 @@ namespace GVK_ToolCore_Tools
                     if (_sorter.Enabled)
                     {
                         SetReEnableFlag(true);
-                        _sorter.Enabled = false;
+                        SetEnabled(false);
                     }
                 }
             }
@@ -468,7 +727,7 @@ namespace GVK_ToolCore_Tools
                 {
                     if (MyAPIGateway.Session != null && MyAPIGateway.Session.IsServer)
                     {
-                        _sorter.Enabled = true;
+                        SetEnabled(true);
                     }
                     SetReEnableFlag(false);
                     _refreshBeamTicks = 3;
@@ -480,11 +739,58 @@ namespace GVK_ToolCore_Tools
             {
                 _terminalBlock?.RefreshCustomInfo();
             }
+
+            if (TimingLog)
+                LogTiming();
+        }
+
+        /// <summary>
+        /// Switches the turret without OnEnabledChanged running a second check in the middle of this one.
+        /// </summary>
+        private void SetEnabled(bool value)
+        {
+            bool wasProcessing = _processingEnabledChange;
+            _processingEnabledChange = true;
+            try
+            {
+                _sorter.Enabled = value;
+            }
+            finally
+            {
+                _processingEnabledChange = wasProcessing;
+            }
+        }
+
+        /// <summary>
+        /// When TimingLog is on: every TimingLogEvery checks, writes their average and worst time and
+        /// the average rays per check to the game log, then starts over.
+        /// </summary>
+        private static void LogTiming()
+        {
+            long ticks = _timer.ElapsedTicks;
+            _timedChecks++;
+            _timedTicks += ticks;
+            if (ticks > _timedMaxTicks)
+                _timedMaxTicks = ticks;
+
+            if (_timedChecks < TimingLogEvery)
+                return;
+
+            double usPerTick = 1000000.0 / System.Diagnostics.Stopwatch.Frequency;
+            MyLog.Default.WriteLineAndConsole(string.Format(
+                "[GVK_SalvageTurretClearance] Timing: {0} checks, average {1:0} us, worst {2:0} us, {3:0.0} rays per check ({4})",
+                _timedChecks, _timedTicks * usPerTick / _timedChecks, _timedMaxTicks * usPerTick, (double)_timedRays / _timedChecks,
+                MyAPIGateway.Utilities.IsDedicated ? "dedicated server" : "client or local game"));
+
+            _timedChecks = 0;
+            _timedTicks = 0;
+            _timedMaxTicks = 0;
+            _timedRays = 0;
         }
 
         private static int CellIndex(int x, int y, int z)
         {
-            return ((y * 7) + (x + 3)) * 7 + (z + 3);
+            return (((y - _skyBottom) * Width) + (x + HalfWidth)) * Width + (z + HalfWidth);
         }
 
         private static int CellIndex(Vector3I offset)
@@ -492,8 +798,26 @@ namespace GVK_ToolCore_Tools
             return CellIndex(offset.X, offset.Y, offset.Z);
         }
 
+        private static int DoorIndex(int x, int layer, int z)
+        {
+            return ((layer * Width) + (x + HalfWidth)) * Width + (z + HalfWidth);
+        }
+
+        private static bool DoorAt(int x, int layer, int z)
+        {
+            return _anyDoor && _doorCells[DoorIndex(x, layer, z)];
+        }
+
         /// <summary>
-        /// Computes the world-space cell axes of the turret and the world AABB of both zones.
+        /// Grid cell of offset (x, y, z): basePos + x*right + y*up - z*forward.
+        /// </summary>
+        private Vector3I GridCell(int x, int y, int z)
+        {
+            return _basePos + _cachedRightVec * x + _cachedUpVec * y - _cachedForwardVec * z;
+        }
+
+        /// <summary>
+        /// Computes the world-space cell axes of the turret and the world AABB of the area (lanes and sky).
         /// Offset (x, y, z) maps to grid cell basePos + x*right + y*up - z*forward.
         /// </summary>
         private void ComputeWorldAxes(IMyCubeGrid grid)
@@ -501,7 +825,7 @@ namespace GVK_ToolCore_Tools
             MatrixD wm = grid.WorldMatrix;
             double gs = grid.GridSize;
 
-            _wOrigin = grid.GridIntegerToWorld(_sorter.Position);
+            _wOrigin = grid.GridIntegerToWorld(_basePos);
             _wRight = Vector3D.TransformNormal(new Vector3D(_cachedRightVec.X, _cachedRightVec.Y, _cachedRightVec.Z), wm) * gs;
             _wUp = Vector3D.TransformNormal(new Vector3D(_cachedUpVec.X, _cachedUpVec.Y, _cachedUpVec.Z), wm) * gs;
             _wBack = Vector3D.TransformNormal(new Vector3D(-_cachedForwardVec.X, -_cachedForwardVec.Y, -_cachedForwardVec.Z), wm) * gs;
@@ -510,8 +834,8 @@ namespace GVK_ToolCore_Tools
         }
 
         /// <summary>
-        /// Axis-aligned bounds of the full 7 x 11 x 7 zone, given its base cell centre and cell axes
-        /// in any coordinate space.
+        /// Axis-aligned bounds of the area, the lane layers and the sky, given the base cell centre and
+        /// cell axes in any coordinate space.
         /// </summary>
         private static BoundingBoxD ZoneBounds(Vector3D origin, Vector3D right, Vector3D up, Vector3D back)
         {
@@ -520,9 +844,9 @@ namespace GVK_ToolCore_Tools
 
             for (int c = 0; c < 8; c++)
             {
-                double sx = (c & 1) == 0 ? -3.5 : 3.5;
-                double sy = (c & 2) == 0 ? -0.5 : 10.5;
-                double sz = (c & 4) == 0 ? -3.5 : 3.5;
+                double sx = (c & 1) == 0 ? -(HalfWidth + 0.5) : HalfWidth + 0.5;
+                double sy = (c & 2) == 0 ? WorkspaceBottom - 0.5 : _skyTop + 0.5;
+                double sz = (c & 4) == 0 ? -(HalfWidth + 0.5) : HalfWidth + 0.5;
                 var p = origin + right * sx + up * sy + back * sz;
                 min = Vector3D.Min(min, p);
                 max = Vector3D.Max(max, p);
@@ -533,179 +857,216 @@ namespace GVK_ToolCore_Tools
 
         private void MarkOwnGrid(IMyCubeGrid grid)
         {
-            var basePos = _sorter.Position;
-            var rightVec = _cachedRightVec;
-            var upVec = _cachedUpVec;
-            var forwardVec = _cachedForwardVec;
-
             for (int i = 0; i < ClearanceOffsets.Length; i++)
             {
                 var offset = ClearanceOffsets[i];
-
-                int gx = basePos.X + (offset.X * rightVec.X) + (offset.Y * upVec.X) - (offset.Z * forwardVec.X);
-                int gy = basePos.Y + (offset.X * rightVec.Y) + (offset.Y * upVec.Y) - (offset.Z * forwardVec.Y);
-                int gz = basePos.Z + (offset.X * rightVec.Z) + (offset.Y * upVec.Z) - (offset.Z * forwardVec.Z);
-
-                var slim = grid.GetCubeBlock(new Vector3I(gx, gy, gz));
+                var slim = grid.GetCubeBlock(GridCell(offset.X, offset.Y, offset.Z));
                 if (slim != null && slim.FatBlock != _sorter)
                 {
                     _occupied[CellIndex(offset)] = true;
                 }
             }
+
+            // Doors in the lane layers, which CastLane counts as closed.
+            for (int h = 0; h < LaneHeights; h++)
+            {
+                for (int x = -HalfWidth; x <= HalfWidth; x++)
+                {
+                    for (int z = -HalfWidth; z <= HalfWidth; z++)
+                    {
+                        if (x == 0 && z == 0)
+                            continue;
+
+                        var slim = grid.GetCubeBlock(GridCell(x, WorkspaceBottom + h, z));
+                        if (slim != null && slim.FatBlock is IMyDoor)
+                        {
+                            _doorCells[DoorIndex(x, h, z)] = true;
+                            _anyDoor = true;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
-        /// Marks cells holding any block of a grid joined to the turret's grid by rotors, hinges,
-        /// pistons or suspension. Any part of a block in a cell blocks it, small grid included.
-        /// Unconnected grids never count, so nobody can switch the turret off by parking over it.
+        /// Marks the sky cells, and the lane cells holding a door, that a counted grid's blocks fill. Any part
+        /// of the grid in a cell counts, small grid included. It reads whichever is fewer: the grid's own
+        /// cells inside the area, or all its blocks. So a big base beside the turret costs a few hundred
+        /// lookups, and a small subgrid only its own blocks.
         /// </summary>
-        private void MarkMechanicalSubgrids(IMyCubeGrid grid)
+        private void MarkGrid(IMyCubeGrid other)
         {
-            _groupGrids.Clear();
-            MyAPIGateway.GridGroups.GetGroup(grid, GridLinkTypeEnum.Mechanical, _groupGrids);
+            // The area's corners in the other grid's cell coordinates.
+            MatrixD inv = other.WorldMatrixNormalizedInv;
+            double gs = other.GridSize;
+            var lo = new Vector3D(double.MaxValue);
+            var hi = new Vector3D(double.MinValue);
 
-            for (int g = 0; g < _groupGrids.Count; g++)
+            for (int c = 0; c < 8; c++)
             {
-                var sub = _groupGrids[g];
-                if (sub == grid || sub.MarkedForClose || sub.Physics == null)
-                    continue;
+                double sx = (c & 1) == 0 ? -(HalfWidth + 0.5) : HalfWidth + 0.5;
+                double sy = (c & 2) == 0 ? WorkspaceBottom - 0.5 : _skyTop + 0.5;
+                double sz = (c & 4) == 0 ? -(HalfWidth + 0.5) : HalfWidth + 0.5;
+                Vector3D corner = _wOrigin + _wRight * sx + _wUp * sy + _wBack * sz;
+                Vector3D local;
+                Vector3D.Transform(ref corner, ref inv, out local);
+                lo = Vector3D.Min(lo, local);
+                hi = Vector3D.Max(hi, local);
+            }
 
-                if (!_zoneBox.Intersects(sub.WorldAABB))
-                    continue;
+            var min = Vector3I.Max(new Vector3I((int)Math.Floor(lo.X / gs + 0.5), (int)Math.Floor(lo.Y / gs + 0.5), (int)Math.Floor(lo.Z / gs + 0.5)), other.Min);
+            var max = Vector3I.Min(new Vector3I((int)Math.Floor(hi.X / gs + 0.5), (int)Math.Floor(hi.Y / gs + 0.5), (int)Math.Floor(hi.Z / gs + 0.5)), other.Max);
+            if (min.X > max.X || min.Y > max.Y || min.Z > max.Z)
+                return;
 
-                _subgridBlocks.Clear();
-                sub.GetBlocks(_subgridBlocks);
+            long cells = (long)(max.X - min.X + 1) * (max.Y - min.Y + 1) * (max.Z - min.Z + 1);
+            var cube = other as Sandbox.Game.Entities.MyCubeGrid;
+            long blocks = cube != null ? cube.BlocksCount : long.MaxValue;
 
-                for (int b = 0; b < _subgridBlocks.Count; b++)
+            if (cells <= blocks)
+            {
+                for (int x = min.X; x <= max.X; x++)
                 {
-                    var slim = _subgridBlocks[b];
-                    var min = slim.Min;
-                    var max = slim.Max;
-
-                    for (int x = min.X; x <= max.X; x++)
-                        for (int y = min.Y; y <= max.Y; y++)
-                            for (int z = min.Z; z <= max.Z; z++)
-                                MarkWorldPoint(sub.GridIntegerToWorld(new Vector3I(x, y, z)));
+                    for (int y = min.Y; y <= max.Y; y++)
+                    {
+                        for (int z = min.Z; z <= max.Z; z++)
+                        {
+                            var cell = new Vector3I(x, y, z);
+                            var slim = other.GetCubeBlock(cell);
+                            if (slim != null)
+                                MarkWorldPoint(other.GridIntegerToWorld(cell), slim.FatBlock is IMyDoor);
+                        }
+                    }
                 }
+
+                return;
             }
 
             _subgridBlocks.Clear();
-            _groupGrids.Clear();
+            other.GetBlocks(_subgridBlocks);
+
+            for (int b = 0; b < _subgridBlocks.Count; b++)
+            {
+                var slim = _subgridBlocks[b];
+                var bmin = slim.Min;
+                var bmax = slim.Max;
+                bool door = slim.FatBlock is IMyDoor;
+
+                for (int x = bmin.X; x <= bmax.X; x++)
+                    for (int y = bmin.Y; y <= bmax.Y; y++)
+                        for (int z = bmin.Z; z <= bmax.Z; z++)
+                            MarkWorldPoint(other.GridIntegerToWorld(new Vector3I(x, y, z)), door);
+            }
+
+            _subgridBlocks.Clear();
         }
 
-        private void MarkWorldPoint(Vector3D world)
+        private void MarkWorldPoint(Vector3D world, bool door)
         {
             var d = world - _wOrigin;
             int x = (int)Math.Floor(Vector3D.Dot(d, _wRight) / _cellSizeSq + 0.5);
             int y = (int)Math.Floor(Vector3D.Dot(d, _wUp) / _cellSizeSq + 0.5);
             int z = (int)Math.Floor(Vector3D.Dot(d, _wBack) / _cellSizeSq + 0.5);
 
-            if (x < -3 || x > 3 || y < 0 || y > 10 || z < -3 || z > 3)
+            if (x < -HalfWidth || x > HalfWidth || z < -HalfWidth || z > HalfWidth)
                 return;
 
-            _occupied[CellIndex(x, y, z)] = true;
+            if (y >= _skyBottom && y <= _skyTop)
+            {
+                _occupied[CellIndex(x, y, z)] = true;
+            }
+            else if (door && y >= WorkspaceBottom && y < _skyBottom && (x != 0 || z != 0))
+            {
+                _doorCells[DoorIndex(x, y - WorkspaceBottom, z)] = true;
+                _anyDoor = true;
+            }
         }
 
         /// <summary>
-        /// Marks cells that are mostly terrain: a pit, trench, cave or overhang around the turret.
+        /// Casts a lane's rays, one per layer, into _rayBlocked. Returns true if all are clear. Without
+        /// detail (dedicated server) it stops at the first blocked layer.
+        /// A diagonal passes exactly through the corner where its two side cells meet, where a ray could
+        /// graze either block or neither. So it casts two rays shifted a little to either side of the line,
+        /// and a layer is blocked only if both are: by a block on the line, or by two blocks meeting corner
+        /// to corner across it. A block on one side only leaves the diagonal open.
+        /// A door in a cell a ray crosses blocks it, open or shut: a door raises no event when it moves,
+        /// so an open door would otherwise hide a shut one until the next check.
         /// </summary>
-        private void MarkTerrain()
+        private bool CastLane(int lane, bool detail)
         {
-            _voxelMaps.Clear();
-            _voxelRoots.Clear();
-            var box = _zoneBox;
-            MyGamePruningStructure.GetAllVoxelMapsInBox(ref box, _voxelMaps);
+            int dx = LaneX[lane];
+            int dz = LaneZ[lane];
+            bool open = true;
 
-            for (int i = 0; i < _voxelMaps.Count; i++)
+            for (int h = 0; h < LaneHeights; h++)
             {
-                var voxel = _voxelMaps[i];
-                if (voxel == null || voxel.MarkedForClose)
-                    continue;
+                double y = WorkspaceBottom + h;
+                bool blocked;
 
-                // A planet's physics sections share its storage; read each storage once, from its root.
-                var root = voxel.RootVoxel;
-                if (root != null && !root.MarkedForClose && !_voxelRoots.Contains(root))
-                    _voxelRoots.Add(root);
+                if (dx != 0 && dz != 0)
+                {
+                    // Ray A runs on the X side of the diagonal, ray B on the Z side; each crosses 4 cells.
+                    blocked = (DoorAt(dx, h, 0) || DoorAt(dx, h, dz) || DoorAt(2 * dx, h, dz) || DoorAt(2 * dx, h, 2 * dz)
+                            || RayBlocked(dx * (RayStart + DiagonalShift), y, dz * RayStart, dx * RayEnd, dz * (RayEnd - DiagonalShift)))
+                        && (DoorAt(0, h, dz) || DoorAt(dx, h, dz) || DoorAt(dx, h, 2 * dz) || DoorAt(2 * dx, h, 2 * dz)
+                            || RayBlocked(dx * RayStart, y, dz * (RayStart + DiagonalShift), dx * (RayEnd - DiagonalShift), dz * RayEnd));
+                }
+                else
+                {
+                    blocked = DoorAt(dx, h, dz) || DoorAt(2 * dx, h, 2 * dz)
+                        || RayBlocked(dx * RayStart, y, dz * RayStart, dx * RayEnd, dz * RayEnd);
+                }
+
+                _rayBlocked[lane * LaneHeights + h] = blocked;
+                if (blocked)
+                {
+                    open = false;
+                    if (!detail)
+                        break;
+                }
             }
 
-            for (int i = 0; i < _voxelRoots.Count; i++)
-            {
-                MarkTerrainFrom(_voxelRoots[i]);
-            }
-
-            _voxelMaps.Clear();
-            _voxelRoots.Clear();
+            return open;
         }
 
-        private void MarkTerrainFrom(MyVoxelBase root)
+        /// <summary>
+        /// Casts one physics ray between two points given in cells in the turret's frame, at layer y.
+        /// Blocked by any block of the turret's grid or a counted grid (_countedGrids), except the turret
+        /// itself and its moving parts. Terrain, characters, loose items and grids that don't count are ignored.
+        /// </summary>
+        private bool RayBlocked(double x0, double y, double z0, double x1, double z1)
         {
-            var storage = ((IMyVoxelBase)root).Storage;
-            if (storage == null)
-                return;
+            Vector3D from = _wOrigin + _wRight * x0 + _wUp * y + _wBack * z0;
+            Vector3D to = _wOrigin + _wRight * x1 + _wUp * y + _wBack * z1;
+            MyAPIGateway.Physics.CastRay(from, to, _hits, RaycastLayer);
+            if (TimingLog)
+                _timedRays++;
 
-            // Storage coordinates (LOD 0, 1 m voxels) of world point p: Transform(p, inv) + half size + StorageMin.
-            MatrixD inv = MatrixD.Invert(root.WorldMatrix);
-            Vector3D shift = new Vector3D(root.SizeInMetresHalf) + new Vector3D(root.StorageMin.X, root.StorageMin.Y, root.StorageMin.Z);
-
-            var sOrigin = Vector3D.Transform(_wOrigin, inv) + shift;
-            var sRight = Vector3D.TransformNormal(_wRight, inv);
-            var sUp = Vector3D.TransformNormal(_wUp, inv);
-            var sBack = Vector3D.TransformNormal(_wBack, inv);
-
-            var bounds = ZoneBounds(sOrigin, sRight, sUp, sBack);
-            var lo = Vector3I.Max(Vector3I.Floor(bounds.Min) - 1, Vector3I.Zero);
-            var hi = Vector3I.Min(Vector3I.Ceiling(bounds.Max) + 1, storage.Size - 1);
-            if (lo.X > hi.X || lo.Y > hi.Y || lo.Z > hi.Z)
-                return;
-
-            var loLod = lo >> TerrainLod;
-            var hiLod = hi >> TerrainLod;
-
-            if (_voxelData == null)
-                _voxelData = new MyStorageData(MyStorageDataTypeFlags.Content);
-
-            _voxelData.Resize(loLod, hiLod);
-            storage.ReadRange(_voxelData, MyStorageDataTypeFlags.Content, TerrainLod, loLod, hiLod);
-
-            var size = _voxelData.Size3D;
-            double lodScale = 1.0 / (1 << TerrainLod);
-
-            for (int i = 0; i < ClearanceOffsets.Length; i++)
+            for (int i = 0; i < _hits.Count; i++)
             {
-                var offset = ClearanceOffsets[i];
-                int idx = CellIndex(offset);
-                if (_occupied[idx])
+                var hit = _hits[i];
+                IMyCubeGrid hitGrid = null;
+
+                // Subparts lead up to their block, blocks to their grid. Stop at the turret's own parts.
+                for (var e = hit.HitEntity; e != null && e != _sorter; e = e.Parent)
+                {
+                    hitGrid = e as IMyCubeGrid;
+                    if (hitGrid != null)
+                        break;
+                }
+
+                if (hitGrid == null || (hitGrid != _trackedGrid && !_countedGrids.Contains(hitGrid)))
                     continue;
 
-                var centre = sOrigin + sRight * offset.X + sUp * offset.Y + sBack * offset.Z;
-                int solid = 0;
+                // A hit inside the turret's own cell is the turret: no other block can be there.
+                var d = hit.Position - _wOrigin;
+                if (Math.Abs(Vector3D.Dot(d, _wRight)) < 0.5 * _cellSizeSq && Math.Abs(Vector3D.Dot(d, _wBack)) < 0.5 * _cellSizeSq)
+                    continue;
 
-                // 8 sample points, one at the centre of each octant of the cell.
-                for (int s = 0; s < 8; s++)
-                {
-                    double dx = (s & 1) == 0 ? -0.25 : 0.25;
-                    double dy = (s & 2) == 0 ? -0.25 : 0.25;
-                    double dz = (s & 4) == 0 ? -0.25 : 0.25;
-                    var p = (centre + sRight * dx + sUp * dy + sBack * dz) * lodScale;
-
-                    var v = new Vector3I(
-                        (int)Math.Floor(p.X + 0.5) - loLod.X,
-                        (int)Math.Floor(p.Y + 0.5) - loLod.Y,
-                        (int)Math.Floor(p.Z + 0.5) - loLod.Z);
-
-                    if (v.X < 0 || v.Y < 0 || v.Z < 0 || v.X >= size.X || v.Y >= size.Y || v.Z >= size.Z)
-                        continue;
-
-                    if (_voxelData.Content(ref v) > VoxelSolidContent)
-                        solid++;
-                }
-
-                if (solid >= TerrainSolidSamples)
-                {
-                    _occupied[idx] = true;
-                    _terrainCell[idx] = true;
-                }
+                return true;
             }
+
+            return false;
         }
 
         /// <summary>
@@ -755,13 +1116,28 @@ namespace GVK_ToolCore_Tools
             }
 
             sb.AppendLine();
-            sb.AppendLine(string.Format(" • Workspace (7x7x4, min 75% clear): {0} of max {1} cells blocked {2}",
-                _workspaceBlocked, MaxAllowedObstructedZone1, _zone1Obstructed ? "[OBSTRUCTED]" : "[CLEAR]"));
-            sb.AppendLine(string.Format(" • Sky (7x7x7, 100% clear): {0} cells blocked {1}",
-                _skyBlocked, _zone2Obstructed ? "[OBSTRUCTED]" : "[CLEAR]"));
-            if (_terrainBlocked > 0)
-                sb.AppendLine(string.Format(" • Terrain fills {0} of those cells", _terrainBlocked));
-            sb.AppendLine("Blocks, rotor/hinge/piston parts and terrain all count.");
+            sb.AppendLine(string.Format(" • Sight lanes ({0} directions out to the 5x5 edge, min {1} open): {2} open {3}",
+                LaneCount, MinOpenLanes, _openLanes, _lanesObstructed ? "[OBSTRUCTED]" : "[CLEAR]"));
+            if (_blockedLaneMask != 0)
+            {
+                sb.Append("   Blocked: ");
+                bool first = true;
+                for (int lane = 0; lane < LaneCount; lane++)
+                {
+                    if ((_blockedLaneMask & (1 << lane)) == 0)
+                        continue;
+                    if (!first)
+                        sb.Append(", ");
+                    sb.Append(LaneNames[lane]);
+                    first = false;
+                }
+                sb.AppendLine();
+            }
+            sb.AppendLine(string.Format(" • Sky ({0}x{0}x{1}, 100% clear): {2} of {3} cells blocked {4}",
+                Width, SkyLayers, _skyBlocked, _skyCells, _skyObstructed ? "[OBSTRUCTED]" : "[CLEAR]"));
+            sb.AppendLine("A lane is open when its line at every height is clear.");
+            sb.AppendLine("Your and your faction's grids count; other");
+            sb.AppendLine("factions', NPC grids, terrain and people do not.");
 
             if (_isObstructed)
             {
@@ -781,7 +1157,7 @@ namespace GVK_ToolCore_Tools
 
             var toggle = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyConveyorSorter>("GVK_ShowClearanceZone");
             toggle.Title = MyStringId.GetOrCompute("Show Clearance Zone");
-            toggle.Tooltip = MyStringId.GetOrCompute("Displays a holographic wireframe of the required 7x7 mounting clearance column.");
+            toggle.Tooltip = MyStringId.GetOrCompute("Displays a holographic wireframe of the turret's clearance zones.");
             toggle.OnText = MyStringId.GetOrCompute("Visible");
             toggle.OffText = MyStringId.GetOrCompute("Hidden");
             toggle.Getter = (b) =>
@@ -838,11 +1214,12 @@ namespace GVK_ToolCore_Tools
         {
             ActiveDrawTurrets.Clear();
             _terminalControlsInitialized = false;
-            _voxelData = null;
-            _voxelMaps.Clear();
-            _voxelRoots.Clear();
             _groupGrids.Clear();
             _subgridBlocks.Clear();
+            _hits.Clear();
+            _nearEntities.Clear();
+            _countedGrids.Clear();
+            _gridBuilders.Clear();
         }
     }
 
@@ -855,20 +1232,13 @@ namespace GVK_ToolCore_Tools
     public class GVK_ClearanceDrawSession : MySessionComponentBase
     {
         private static readonly MyStringId WireframeMaterial = MyStringId.GetOrCompute("GizmoDrawLine");
+        private static readonly Vector4 LaneClearColor = new Color(60, 230, 90, 200).ToVector4();
+        private static readonly Vector4 LaneBlockedColor = new Color(255, 50, 50, 200).ToVector4();
 
         // Snapshot buffer: reused each frame to avoid iterating the live HashSet from
         // the render thread while the sim thread may be modifying it. (Audit #12)
         private readonly List<GVK_SalvageTurretClearance> _drawSnapshot = new List<GVK_SalvageTurretClearance>();
 
-        // Zone 1 (Work Zone): 7x7x4 from Y=0 to Y=3 (17.5m wide, 10m tall, 17.5m deep, from Y=-1.25m to Y=+8.75m)
-        private static readonly BoundingBoxD BoxZone1 = new BoundingBoxD(
-            new Vector3D(-8.75, -1.25, -8.75),
-            new Vector3D(8.75, 8.75, 8.75));
-
-        // Zone 2 (Sky Chimney): 7x7x7 from Y=4 to Y=10 (17.5m wide, 17.5m tall, 17.5m deep, from Y=+8.75m to Y=+26.25m)
-        private static readonly BoundingBoxD BoxZone2 = new BoundingBoxD(
-            new Vector3D(-8.75, 8.75, -8.75),
-            new Vector3D(8.75, 26.25, 8.75));
 
         public override void Draw()
         {
@@ -892,8 +1262,7 @@ namespace GVK_ToolCore_Tools
                     continue;
 
                 var grid = turret.Sorter.CubeGrid;
-                var basePos = turret.Sorter.Position;
-                var baseWorldPos = grid.GridIntegerToWorld(basePos);
+                var baseWorldPos = grid.GridIntegerToWorld(turret.BasePos);
 
                 // Cull wireframe if camera is further than 50m
                 if (Vector3D.DistanceSquared(cameraPos, baseWorldPos) > 2500.0)
@@ -903,15 +1272,28 @@ namespace GVK_ToolCore_Tools
                 MatrixD turretWorld = turret.Sorter.WorldMatrix;
                 turretWorld.Translation = baseWorldPos;
 
-                Color colorZone1 = turret.Zone1Obstructed ? new Color(255, 50, 50, 180) : new Color(50, 220, 255, 180);
-                Color colorZone2 = turret.Zone2Obstructed ? new Color(255, 50, 50, 180) : new Color(100, 180, 255, 160);
+                // Sight lanes: one line per layer, from the turret's side to the 5x5 edge, green if clear.
+                double gs = grid.GridSize;
+                Vector3D up = turretWorld.Up * gs;
+                Vector3D right = turretWorld.Right * gs;
+                Vector3D back = turretWorld.Backward * gs;
+                for (int lane = 0; lane < GVK_SalvageTurretClearance.LaneCount; lane++)
+                {
+                    Vector3D dir = right * GVK_SalvageTurretClearance.LaneX[lane] + back * GVK_SalvageTurretClearance.LaneZ[lane];
+                    for (int h = 0; h < GVK_SalvageTurretClearance.LaneHeights; h++)
+                    {
+                        Vector3D level = baseWorldPos + up * (GVK_SalvageTurretClearance.WorkspaceBottomLayer + h);
+                        Vector4 color = turret.RayBlockedAt(lane, h) ? LaneBlockedColor : LaneClearColor;
+                        MySimpleObjectDraw.DrawLine(level + dir * 0.5, level + dir * GVK_SalvageTurretClearance.RayEnd, WireframeMaterial, ref color, 0.05f);
+                    }
+                }
 
-                var box1 = BoxZone1;
-                var box2 = BoxZone2;
-
-                // Render Zone 1 (Work Zone) and Zone 2 (Sky Chimney)
-                MySimpleObjectDraw.DrawTransparentBox(ref turretWorld, ref box1, ref colorZone1, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, WireframeMaterial, false);
-                MySimpleObjectDraw.DrawTransparentBox(ref turretWorld, ref box2, ref colorZone2, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, WireframeMaterial, false);
+                // Sky box in the turret's frame, centred on its bottom cell.
+                Color colorSky = turret.SkyObstructed ? new Color(255, 50, 50, 180) : new Color(100, 180, 255, 160);
+                double half = 2.5 * gs;
+                var sky = new BoundingBoxD(new Vector3D(-half, (GVK_SalvageTurretClearance.SkyBottom - 0.5) * gs, -half),
+                    new Vector3D(half, (GVK_SalvageTurretClearance.SkyTop + 0.5) * gs, half));
+                MySimpleObjectDraw.DrawTransparentBox(ref turretWorld, ref sky, ref colorSky, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, WireframeMaterial, false);
             }
         }
 
