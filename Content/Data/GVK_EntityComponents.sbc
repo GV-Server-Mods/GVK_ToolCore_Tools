@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EntityComponents>
+    <!-- Mod storage key for the Salvage Beam Turret: remembers that the clearance rule switched it off, so it comes back on after a restart. -->
+    <EntityComponent xsi:type="MyObjectBuilder_ModStorageComponentDefinition">
+      <Id>
+        <TypeId>ModStorageComponent</TypeId>
+        <SubtypeId>GVK_SalvageTurretClearance</SubtypeId>
+      </Id>
+      <RegisteredStorageGuids>
+        <guid>AB503EF1-F20D-4F3A-A7EE-E7C67638EC0A</guid>
+      </RegisteredStorageGuids>
+    </EntityComponent>
+  </EntityComponents>
+</Definitions>

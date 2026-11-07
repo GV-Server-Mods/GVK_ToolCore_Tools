@@ -42,13 +42,14 @@ The ship tools of the **GV: Deserts of Kharak (GVK)** server, built on ToolCore:
 | Hiding the vanilla ship welders, grinders and drills | `Content/Data/ModAdjuster/CubeBlocks_VanillaTools_ModAdjuster.xml` |
 | Which files ToolCore loads | `Content/Data/ToolCoreFiles.txt` |
 | The turret's clearance check | `ModScripts/GVK_SalvageTurretClearance.cs` |
+| The mod storage key that keeps the turret's re-enable flag through a restart | `Content/Data/GVK_EntityComponents.sbc` |
 
 ## The salvage turret in brief
-The turret checks two stacked zones around it: a workspace that must stay mostly clear and a sky zone above it that must stay completely clear. A violation shuts it down, says which layer is wrong in its control panel, and can draw a wireframe of the legal space. NPC grids are exempt. The whole design, including the ToolCore workarounds and why the beam is a line and not a sphere, is in [Docs/design/salvage-beam-turret.md](Docs/design/salvage-beam-turret.md).
+The turret checks two stacked zones around it: a 7x7x4 workspace where at most a quarter of the cells (48 of 193) may be blocked, and a 7x7x7 sky zone above it that must stay completely clear. Blocks on its own grid, its rotor, hinge and piston subgrids, and terrain all count. A violation shuts it down, shows the blocked-cell counts in its control panel, and can draw a wireframe of the legal space; it switches back on once cleared, even after a restart. NPC grids are exempt. The whole design, including the ToolCore workarounds and why the beam is a line and not a sphere, is in [Docs/design/salvage-beam-turret.md](Docs/design/salvage-beam-turret.md).
 
 ## For other modders
 Worth reading in the design doc:
-- **Rules enforced by the block itself** with event-driven checks that cost nothing while a grid is unchanged.
+- **Rules enforced by the block itself**: event-driven checks plus a 10-second heartbeat, counting the block's own grid, its mechanical subgrids and terrain (one voxel read per check) with no allocations.
 - **Why a line beam beats a working sphere** for salvaging: it can't reach through armor.
 - **Two ToolCore quirks** and their workarounds (the missing beam state, and the model offset after resizing a block).
 

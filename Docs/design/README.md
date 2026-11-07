@@ -8,5 +8,5 @@ How GVK_ToolCore_Tools works, one file per system, next to the files it describe
 
 | Doc | Covered files | Checked |
 | --- | --- | --- |
-| [Heavy Salvage Beam Turret](salvage-beam-turret.md) | 2 | - |
+| [Heavy Salvage Beam Turret](salvage-beam-turret.md) | 3 | - |
 <!-- /GENERATED:design-docs -->
