@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Blender backups and checkpoint copies
+*.blend1
+*_before_*.blend
