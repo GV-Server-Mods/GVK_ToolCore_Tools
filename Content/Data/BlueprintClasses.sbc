@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<BlueprintClassEntries>
+		<!-- Lists the ToolCore Prototech drill in the assembler's Large Blocks tab, replacing the vanilla
+		     Drill/LargeBlockPrototechDrill entry GVK-Settings used to add (that block is hidden by this mod) -->
+		<Entry Class="LargeBlocks" BlueprintSubtypeId="ConveyorSorter/GVK_LargePrototechDrill" />
+	</BlueprintClassEntries>
+</Definitions>
