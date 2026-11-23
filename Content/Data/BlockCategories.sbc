@@ -55,18 +55,6 @@
 			<ItemIds>
 				<string>ConveyorSorter/GVK_LargeSalvageBeamTurret</string>
 				<string>ConveyorSorter/GVK_LargeBlockDrill</string>
-				<string>ConveyorSorter/GVK_SmallBlockDrill</string>
-				<string>ConveyorSorter/GVK_LargePrototechDrill</string>
-				<string>ConveyorSorter/GVK_LargeShipWelder</string>
-				<string>ConveyorSorter/GVK_SmallShipWelder</string>
-				<string>ConveyorSorter/GVK_LargeShipGrinder</string>
-				<string>ConveyorSorter/GVK_SmallShipGrinder</string>
-				<string>ConveyorSorter/GVK_LargeBlockDrillReskin</string>
-				<string>ConveyorSorter/GVK_SmallBlockDrillReskin</string>
-				<string>ConveyorSorter/GVK_LargeShipWelderReskin</string>
-				<string>ConveyorSorter/GVK_SmallShipWelderReskin</string>
-				<string>ConveyorSorter/GVK_LargeShipGrinderReskin</string>
-				<string>ConveyorSorter/GVK_SmallShipGrinderReskin</string>
 			</ItemIds>
 		</Category>
 		<Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
@@ -80,12 +68,6 @@
 			<ItemIds>
 				<string>ConveyorSorter/GVK_LargeSalvageBeamTurret</string>
 				<string>ConveyorSorter/GVK_LargeBlockDrill</string>
-				<string>ConveyorSorter/GVK_LargePrototechDrill</string>
-				<string>ConveyorSorter/GVK_LargeShipWelder</string>
-				<string>ConveyorSorter/GVK_LargeShipGrinder</string>
-				<string>ConveyorSorter/GVK_LargeBlockDrillReskin</string>
-				<string>ConveyorSorter/GVK_LargeShipWelderReskin</string>
-				<string>ConveyorSorter/GVK_LargeShipGrinderReskin</string>
 			</ItemIds>
 		</Category>
 		<Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
@@ -98,11 +80,6 @@
 			<StrictSearch>true</StrictSearch>
 			<ItemIds>
 				<string>ConveyorSorter/GVK_SmallBlockDrill</string>
-				<string>ConveyorSorter/GVK_SmallShipWelder</string>
-				<string>ConveyorSorter/GVK_SmallShipGrinder</string>
-				<string>ConveyorSorter/GVK_SmallBlockDrillReskin</string>
-				<string>ConveyorSorter/GVK_SmallShipWelderReskin</string>
-				<string>ConveyorSorter/GVK_SmallShipGrinderReskin</string>
 			</ItemIds>
 		</Category>
 	</CategoryClasses>

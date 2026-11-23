@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<!-- Home tab: the GVK Ship Tools group (Keen's grinder spot) and the Salvage Beam Turret on Keen's production row (Y 18). Keyed by each group primary's BlockPairName. Layout: GVK_Settings Docs/design/g-menu.md -->
+	<BlockPositions>
+		<BlockPosition>
+			<Name>GVK_Drill</Name>
+			<Position>
+				<X>3</X>
+				<Y>18</Y>
+			</Position>
+		</BlockPosition>
+		<BlockPosition>
+			<Name>GVK_SalvageBeamTurret</Name>
+			<Position>
+				<X>4</X>
+				<Y>18</Y>
+			</Position>
+		</BlockPosition>
+	</BlockPositions>
+</Definitions>
